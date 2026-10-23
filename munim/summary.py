@@ -1,8 +1,9 @@
 """What the merchant hears on the Soundbox, in Hinglish and English.
 
-Every number is read from the decision or the measured result. The language
-layer (template here, optionally an LLM in production) only phrases numbers
-it is given; it never computes or invents one.
+Every number is read from the decision or the measured result, and nothing the
+agent wrote is ever spoken. The Soundbox sits on the counter, so spoken lines
+never mention margins or why an offer was refused; the full reasons go to the
+owner's app (they are in the decision record).
 """
 
 from __future__ import annotations
@@ -48,43 +49,50 @@ def decision_line(proposal, decision) -> dict:
                       f"up to {spend}) is waiting for you.",
             }
         return {
-            "hi": f"Manzoori chahiye: {treated} grahakon ko {bill}+ par {reward} cashback, zyada se zyada {spend}. "
-                  f"'Haan' bolein ya button dabayein.",
-            "en": f"Needs your OK: {reward} cashback on {bill}+ for {treated} customers, up to {spend}. "
-                  f"Say 'haan' or press the button.",
+            "hi": f"{treated} grahakon ko {bill}+ ke bill par {reward} cashback bhejein? Kharcha {spend} tak. "
+                  f"Manzoori ke liye screen par 'Haan' dabayein.",
+            "en": f"Send {reward} cashback on {bill}+ bills to {treated} customers? It costs up to {spend}. "
+                  f"Tap 'Haan' on the screen to approve.",
         }
-    denies = [r for r in decision.reasons if r.effect == DENY]
-    first = denies[0] if denies else None
+    n = len([r for r in decision.reasons if r.effect == DENY])
     return {
-        "hi": f"Agent ka offer roka, {len(denies)} kaaran. " + (first.hi if first else ""),
-        "en": f"Agent's offer refused, {len(denies)} reason(s). " + (first.en if first else ""),
+        "hi": f"Agent ka {reward} cashback wala offer roka, {n} kaaran. Poori jaankari app mein.",
+        "en": f"The agent's {reward} cashback offer was refused for {n} reason(s). Details are in the app.",
     }
 
 
+def offer_label(proposal) -> dict:
+    """How the owner hears an offer named: by its terms, never by the agent's free-text name."""
+    reward, bill = inr(proposal.reward_paise), inr(proposal.min_bill_paise)
+    return {"hi": f"{bill}+ ke bill par {reward} cashback wala offer", "en": f"The {reward} cashback offer on {bill}+ bills"}
+
+
 def outcome_line(proposal, result, released_paise: int) -> dict:
-    name = proposal.name
+    label = offer_label(proposal)
     visits = max(0, round(result.incremental_visits))
     chance = round(result.prob_profitable * 100)
     if result.verdict == WORKED:
         return {
-            "hi": f"'{name}' kaam kar gaya. {inr(result.spend_paise)} cashback diya; lagbhag {visits} extra visit "
+            "hi": f"{label['hi']} kaam kar gaya. {inr(result.spend_paise)} cashback diya; lagbhag {visits} extra visit "
                   f"aur {inr(result.incremental_revenue_paise)} ki extra bikri. Shuddh fayda {inr(result.net_paise)} "
                   f"({chance}% sambhavna ki sach mein fayda hua).",
-            "en": f"'{name}' worked. {inr(result.spend_paise)} paid in cashback; about {visits} extra visits and "
+            "en": f"{label['en']} worked. {inr(result.spend_paise)} paid in cashback; about {visits} extra visits and "
                   f"{inr(result.incremental_revenue_paise)} in extra sales. Net {inr(result.net_paise)} "
                   f"({chance}% chance it truly made money).",
         }
     if result.verdict == STOP:
         return {
-            "hi": f"'{name}' kaam nahi kiya. {inr(result.spend_paise)} kharch hue par pakka fayda nahi dikha "
-                  f"({chance}% sambhavna). Munim ne ise band kar diya; {inr(released_paise)} budget wapas.",
-            "en": f"'{name}' did not work. {inr(result.spend_paise)} spent with no clear gain ({chance}% chance "
-                  f"it made money). Munim stopped it; {inr(released_paise)} back in the budget.",
+            "hi": f"{label['hi']} kaam nahi kiya. {inr(result.spend_paise)} kharch hue par pakka fayda nahi dikha "
+                  f"({chance}% sambhavna). Munim ne ise band kiya, 30 din tak dobara nahi chalega; "
+                  f"{inr(released_paise)} budget wapas.",
+            "en": f"{label['en']} did not work. {inr(result.spend_paise)} spent with no clear gain ({chance}% chance "
+                  f"it made money). Munim stopped it and won't let it run again for 30 days; "
+                  f"{inr(released_paise)} back in the budget.",
         }
     back = round(result.prob_lift_positive * 100)
     return {
-        "hi": f"'{name}' shayad kaam kar raha hai: {back}% sambhavna ki grahak offer ki wajah se laute, "
-              f"{chance}% ki kharch nikal aaya. Abhi pakka nahi, isliye Munim ise chalne dega aur dekhta rahega.",
-        "en": f"'{name}' is probably working: {back}% chance it brought customers back, {chance}% that it has "
-              f"already paid for itself. Not proven yet, so Munim keeps it running and keeps measuring.",
+        "hi": f"{label['hi']} khatam. {back}% sambhavna ki grahak offer ki wajah se laute, {chance}% ki kharch nikal "
+              f"aaya. Abhi pakka nahi; agli baar aisa offer chala to Munim phir naapega.",
+        "en": f"{label['en']} has ended. {back}% chance it brought customers back, {chance}% that it paid for itself. "
+              f"Not proven yet; if the agent runs it again, Munim measures it again.",
     }

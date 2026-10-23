@@ -29,6 +29,9 @@ def cap(paise: int) -> str:
 # GATE reasons a human approval is allowed to clear. Nothing else is clearable.
 HUMAN_CLEARABLE = frozenset({"approval_required", "kill_switch"})
 
+# After a STOP verdict, the same or a bigger offer to the same kind of segment waits this long.
+STOP_COOLDOWN_DAYS = 30
+
 _INT_FIELDS = ("reward_paise", "min_bill_paise", "holdout_pct", "validity_days")
 
 
@@ -42,6 +45,12 @@ class EvalContext:
     remaining_budget_paise: int = 0
     kill_switch: bool = False
     holdout_salt: bytes = b""
+    # Worst-case spend already approved automatically (by policy, not by the owner) this week.
+    auto_approved_paise: int = 0
+    # Offers to this kind of segment stopped for not paying within the cooldown: ({"segment_kind", "reward_paise"}, ...).
+    recent_stops: tuple = ()
+    # Customers currently in another live offer's comparison group.
+    in_active_holdout: frozenset = frozenset()
 
 
 class PolicyEngine:
@@ -127,16 +136,33 @@ class PolicyEngine:
                 f"warna pata hi nahi chalega offer kaam kiya ya nahi.",
             )
 
+        # 3b. An offer that was just stopped for not paying can't come straight back at the same size.
+        stopped = [r["reward_paise"] for r in ctx.recent_stops
+                   if seg is not None and r["segment_kind"] == seg.kind and p.reward_paise >= r["reward_paise"]]
+        if stopped:
+            low = min(stopped)
+            constraints["max_reward_for_recent_stop_paise"] = low - 1
+            deny(
+                "recently_stopped",
+                f"A {inr(low)} offer to this group was stopped in the last {STOP_COOLDOWN_DAYS} days because it didn't pay; "
+                f"offers of {inr(low)} or more to them wait until the {STOP_COOLDOWN_DAYS} days are over.",
+                f"Is group ko {inr(low)} wala offer pichhle {STOP_COOLDOWN_DAYS} din mein band hua kyunki fayda nahi hua; "
+                f"{inr(low)} ya zyada ka offer {STOP_COOLDOWN_DAYS} din tak dobara nahi.",
+            )
+
         # 4. Consent and frequency cap: customers are filtered out, not argued about.
         offer_cap = pol.max_offers_per_customer_30d
         consented = [c for c in p.customer_ids if c in ctx.consented]
-        eligible = [c for c in consented if ctx.offers_last_30d.get(c, 0) < offer_cap]
+        uncapped = [c for c in consented if ctx.offers_last_30d.get(c, 0) < offer_cap]
+        eligible = [c for c in uncapped if c not in ctx.in_active_holdout]
         no_consent = len(p.customer_ids) - len(consented)
-        capped = len(consented) - len(eligible)
+        capped = len(consented) - len(uncapped)
+        held = len(uncapped) - len(eligible)
         numbers.update(
             customers_proposed=len(p.customer_ids),
             excluded_no_consent=no_consent,
             excluded_frequency_cap=capped,
+            excluded_in_holdout=held,
             eligible=len(eligible),
         )
         if no_consent:
@@ -155,6 +181,16 @@ class PolicyEngine:
                     NOTE,
                     f"{capped} customer(s) already got {offer_cap} offers in the last 30 days and were left out.",
                     f"{capped} grahakon ko 30 din mein pehle hi {offer_cap} offer mil chuke, unhe chhod diya.",
+                )
+            )
+        if held:
+            reasons.append(
+                Reason(
+                    "excluded_in_holdout",
+                    NOTE,
+                    f"{held} customer(s) are in another offer's comparison group right now and were left out, "
+                    f"so that comparison stays fair.",
+                    f"{held} grahak abhi doosre offer ki tulna wale group mein hain, unhe chhod diya taaki tulna sahi rahe.",
                 )
             )
 
@@ -220,18 +256,22 @@ class PolicyEngine:
                 f"ummeed {pp(pol.max_plausible_lift_bps)} tak hi. Zyada se zyada {cap(r_max)} cashback.",
             )
 
-        # 9. Big spends wait for the merchant.
-        if max_spend > pol.approval_threshold_paise:
-            reasons.append(
-                Reason(
-                    "approval_required",
-                    GATE,
-                    f"Worst-case spend {inr(max_spend)} is above your {inr(pol.approval_threshold_paise)} "
-                    f"auto-approve limit, so it waits for your OK.",
-                    f"Is offer mein {inr(max_spend)} tak kharch ho sakta hai, aapki {inr(pol.approval_threshold_paise)} "
-                    f"ki seema se zyada. Aapki manzoori chahiye.",
-                )
-            )
+        # 9. Big spends wait for the merchant. The limit covers the week's automatic approvals together,
+        #    so splitting one offer into several small ones doesn't get around it.
+        auto = ctx.auto_approved_paise
+        numbers["auto_approved_this_week_paise"] = auto
+        if max_spend + auto > pol.approval_threshold_paise:
+            if auto:
+                en = (f"Worst-case spend {inr(max_spend)}, on top of {inr(auto)} already approved automatically this week, "
+                      f"is above your {inr(pol.approval_threshold_paise)} auto-approve limit, so it waits for your OK.")
+                hi = (f"Is offer mein {inr(max_spend)} tak kharch ho sakta hai, aur is hafte {inr(auto)} pehle hi apne aap "
+                      f"manzoor ho chuka; aapki {inr(pol.approval_threshold_paise)} ki seema se zyada. Aapki manzoori chahiye.")
+            else:
+                en = (f"Worst-case spend {inr(max_spend)} is above your {inr(pol.approval_threshold_paise)} "
+                      f"auto-approve limit, so it waits for your OK.")
+                hi = (f"Is offer mein {inr(max_spend)} tak kharch ho sakta hai, aapki {inr(pol.approval_threshold_paise)} "
+                      f"ki seema se zyada. Aapki manzoori chahiye.")
+            reasons.append(Reason("approval_required", GATE, en, hi))
 
         # 10. Kill switch: nothing spends without a human.
         if ctx.kill_switch:

@@ -913,7 +913,7 @@
    "day": 0,
    "date": "Fri 23 Oct",
    "ledger_seq": 4,
-   "ledger_head": "d89aa8e38fa262b1a223ee28aadbd144606cb9542629b1ac525abc3d17d48642",
+   "ledger_head": "297e60e3065732a3e35724e74822ee52962a7855d349ef8c8e5c82e8036316cf",
    "proposal": {
     "campaign_id": "winback-a1",
     "merchant_id": "sharma-general-store",
@@ -993,6 +993,7 @@
      "customers_proposed": 48,
      "excluded_no_consent": 4,
      "excluded_frequency_cap": 3,
+     "excluded_in_holdout": 0,
      "eligible": 41,
      "treated": 32,
      "holdout": 9,
@@ -1001,13 +1002,14 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 2189,
      "basket_used_paise": 34051,
-     "break_even_lift_bps": 101673
+     "break_even_lift_bps": 101673,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
    "soundbox": {
-    "hi": "Agent ka offer roka, 4 kaaran. ₹100 ke bill par ₹40 cashback se har bill par 6% munafa nahi bachega. Zyada se zyada ₹6. Sujhaav: ₹250+ ke bill par ₹15.",
-    "en": "Agent's offer refused, 4 reason(s). ₹40 cashback on a ₹100 bill leaves less than the 6% margin you keep on every bill. Most it can be: ₹6. Suggested: ₹15 on bills of ₹250+."
+    "hi": "Agent ka ₹40 cashback wala offer roka, 4 kaaran. Poori jaankari app mein.",
+    "en": "The agent's ₹40 cashback offer was refused for 4 reason(s). Details are in the app."
    }
   },
   {
@@ -1017,7 +1019,7 @@
    "day": 0,
    "date": "Fri 23 Oct",
    "ledger_seq": 6,
-   "ledger_head": "a993d87d0e21bd4000391e42d34e5067362d540dbbc33a5a78c9c30b4ce4d78e",
+   "ledger_head": "99c86ebacc7f6638734d5990d8a057a6691db8ff560214ae14c3f06d560437a3",
    "proposal": {
     "campaign_id": "winback-a2",
     "merchant_id": "sharma-general-store",
@@ -1062,6 +1064,7 @@
      "customers_proposed": 48,
      "excluded_no_consent": 4,
      "excluded_frequency_cap": 3,
+     "excluded_in_holdout": 0,
      "eligible": 41,
      "treated": 32,
      "holdout": 9,
@@ -1070,23 +1073,24 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 2189,
      "basket_used_paise": 34051,
-     "break_even_lift_bps": 1270
+     "break_even_lift_bps": 1270,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
    "soundbox": {
-    "hi": "Manzoori chahiye: 32 grahakon ko ₹250+ par ₹15 cashback, zyada se zyada ₹480. 'Haan' bolein ya button dabayein.",
-    "en": "Needs your OK: ₹15 cashback on ₹250+ for 32 customers, up to ₹480. Say 'haan' or press the button."
+    "hi": "32 grahakon ko ₹250+ ke bill par ₹15 cashback bhejein? Kharcha ₹480 tak. Manzoori ke liye screen par 'Haan' dabayein.",
+    "en": "Send ₹15 cashback on ₹250+ bills to 32 customers? It costs up to ₹480. Tap 'Haan' on the screen to approve."
    }
   },
   {
    "kind": "approval",
-   "title": "Owner says 'haan'. Munim re-checks, reserves budget, issues a passport",
+   "title": "Owner taps 'Haan'. Munim re-checks, reserves budget, issues a passport",
    "actor": "merchant",
    "day": 0,
    "date": "Fri 23 Oct",
    "ledger_seq": 9,
-   "ledger_head": "902e20fba45cee08b0d67eaaf60fb6bfbe3959fb6db7f9997a9e22b9213d7bd6",
+   "ledger_head": "75995a7d4ca6e83a70a2ba5d10ffd4ae83952e6c910d7fbf7916876801b9a412",
    "decision": {
     "campaign_id": "winback-a2",
     "decision": "GATE",
@@ -1116,6 +1120,7 @@
      "customers_proposed": 48,
      "excluded_no_consent": 4,
      "excluded_frequency_cap": 3,
+     "excluded_in_holdout": 0,
      "eligible": 41,
      "treated": 32,
      "holdout": 9,
@@ -1124,7 +1129,8 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 2189,
      "basket_used_paise": 34051,
-     "break_even_lift_bps": 1270
+     "break_even_lift_bps": 1270,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
@@ -1136,12 +1142,12 @@
     "min_bill_paise": 25000,
     "max_spend_paise": 48000,
     "treated_count": 32,
-    "treated_digest": "ed983603886bcf6c09b31252d6c244b6b8bda436b4d02c5db4c18cbb67458dd4",
+    "treated_digest": "28ccb955c065b603ee856bced011e35ed43bf40030d5c57cb44a5abf6eecb387",
     "policy_fingerprint": "b5d4fc22b09faf14",
     "issued_at": 1792726620.0,
     "expires_at": 1792730220.0,
     "nonce": "eedbe84905817ddfc9089244",
-    "signature": "5f6175d6a3114b4e..."
+    "signature": "7894bb2617c4ee91..."
    },
    "offer": {
     "offer_id": "mock-offer-70b79ded25",
@@ -1163,7 +1169,7 @@
    "day": 7,
    "date": "Fri 30 Oct",
    "ledger_seq": 11,
-   "ledger_head": "030a807bf036cdc5ea2e2a02452d683d65face881393c2b06791cbb6669d4a06",
+   "ledger_head": "ab97241affaa86d0d5b8f149d92b554bc3f7447b85bc20c0915d74c56562bf6f",
    "proposal": {
     "campaign_id": "nudge-a1",
     "merchant_id": "sharma-general-store",
@@ -1204,6 +1210,7 @@
      "customers_proposed": 30,
      "excluded_no_consent": 2,
      "excluded_frequency_cap": 0,
+     "excluded_in_holdout": 0,
      "eligible": 28,
      "treated": 22,
      "holdout": 6,
@@ -1212,13 +1219,14 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 5132,
      "basket_used_paise": 27732,
-     "break_even_lift_bps": 2895
+     "break_even_lift_bps": 2895,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
    "soundbox": {
-    "hi": "Agent ka offer roka, 1 kaaran. Inme se 51.3% grahak 14 din mein waise bhi aate hain; cashback zyadatar unhe milega jo bina offer ke bhi kharidte. Fayde ke liye 29.0 pp aur grahak lautne chahiye, ummeed 25.0 pp tak hi. Zyada se zyada ₹10 cashback.",
-    "en": "Agent's offer refused, 1 reason(s). 51.3% of these customers come back within 14 days anyway, so most cashback would go to people who'd buy regardless. Breaking even needs 29.0 pp more of them to return; plan for at most 25.0 pp. Largest reward that can pay back: ₹10."
+    "hi": "Agent ka ₹12 cashback wala offer roka, 1 kaaran. Poori jaankari app mein.",
+    "en": "The agent's ₹12 cashback offer was refused for 1 reason(s). Details are in the app."
    }
   },
   {
@@ -1228,7 +1236,7 @@
    "day": 7,
    "date": "Fri 30 Oct",
    "ledger_seq": 15,
-   "ledger_head": "1aa7dfc1393d9194c9ab655d82983bfc3eecceaf16009b5470a02b2205632f3d",
+   "ledger_head": "e5f78f6d4ad9620ae8f345184bff4f221906c6c1088b127f925242f74c93f238",
    "proposal": {
     "campaign_id": "nudge-a2",
     "merchant_id": "sharma-general-store",
@@ -1267,6 +1275,7 @@
      "customers_proposed": 30,
      "excluded_no_consent": 2,
      "excluded_frequency_cap": 0,
+     "excluded_in_holdout": 0,
      "eligible": 28,
      "treated": 22,
      "holdout": 6,
@@ -1275,7 +1284,8 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 5132,
      "basket_used_paise": 27732,
-     "break_even_lift_bps": 2205
+     "break_even_lift_bps": 2205,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
@@ -1291,7 +1301,7 @@
    "day": 14,
    "date": "Fri 06 Nov",
    "ledger_seq": 16,
-   "ledger_head": "a8aef7de07f7df24cf2e83e1aea0caa3cc9d5d9b55324eadc5ba441dbbf29b1c",
+   "ledger_head": "703b61da553e5da41357b2324f6dd5a4cbee6ed945e428cdb03e5057457cc896",
    "campaign_id": "winback-a2",
    "name": "Win back lapsed regulars",
    "outcome": {
@@ -1354,8 +1364,8 @@
    "status": "COMPLETED",
    "released_paise": 28500,
    "soundbox": {
-    "hi": "'Win back lapsed regulars' shayad kaam kar raha hai: 93% sambhavna ki grahak offer ki wajah se laute, 56% ki kharch nikal aaya. Abhi pakka nahi, isliye Munim ise chalne dega aur dekhta rahega.",
-    "en": "'Win back lapsed regulars' is probably working: 93% chance it brought customers back, 56% that it has already paid for itself. Not proven yet, so Munim keeps it running and keeps measuring."
+    "hi": "₹250+ ke bill par ₹15 cashback wala offer khatam. 93% sambhavna ki grahak offer ki wajah se laute, 56% ki kharch nikal aaya. Abhi pakka nahi; agli baar aisa offer chala to Munim phir naapega.",
+    "en": "The ₹15 cashback offer on ₹250+ bills has ended. 93% chance it brought customers back, 56% that it paid for itself. Not proven yet; if the agent runs it again, Munim measures it again."
    }
   },
   {
@@ -1365,7 +1375,7 @@
    "day": 21,
    "date": "Fri 13 Nov",
    "ledger_seq": 17,
-   "ledger_head": "8449328c466129742d686a4e488efe6a63caa95913be064250ce9b75fc885849",
+   "ledger_head": "7c3011b43fb2b00094a808c436dd063970a8bf2e8717d7b6dbcba6be33f11e7d",
    "campaign_id": "nudge-a2",
    "name": "Nudge occasional shoppers",
    "outcome": {
@@ -1428,8 +1438,8 @@
    "status": "STOPPED",
    "released_paise": 11000,
    "soundbox": {
-    "hi": "'Nudge occasional shoppers' kaam nahi kiya. ₹110 kharch hue par pakka fayda nahi dikha (12% sambhavna). Munim ne ise band kar diya; ₹110 budget wapas.",
-    "en": "'Nudge occasional shoppers' did not work. ₹110 spent with no clear gain (12% chance it made money). Munim stopped it; ₹110 back in the budget."
+    "hi": "₹200+ ke bill par ₹10 cashback wala offer kaam nahi kiya. ₹110 kharch hue par pakka fayda nahi dikha (12% sambhavna). Munim ne ise band kiya, 30 din tak dobara nahi chalega; ₹110 budget wapas.",
+    "en": "The ₹10 cashback offer on ₹200+ bills did not work. ₹110 spent with no clear gain (12% chance it made money). Munim stopped it and won't let it run again for 30 days; ₹110 back in the budget."
    }
   },
   {
@@ -1439,10 +1449,11 @@
    "day": 21,
    "date": "Fri 13 Nov",
    "ledger_seq": 18,
-   "ledger_head": "3fd0bf30720214bc18f264fc7261aadf4a4feac82c2e607454197b7dd562c34f",
+   "ledger_head": "2b5336e4e3677508310a24a8a2219aebea533887676460d59b94a0622715fe1b",
+   "cancelled": [],
    "soundbox": {
-    "hi": "Theek hai. Ab koi bhi offer aapki manzoori ke bina nahi chalega.",
-    "en": "Done. No offer runs without your approval now."
+    "hi": "Theek hai. Abhi koi offer chalu nahi hai. Ab koi bhi naya offer aapki manzoori ke bina nahi chalega.",
+    "en": "Done. Nothing is running right now. No new offer runs without your approval."
    }
   },
   {
@@ -1452,7 +1463,7 @@
    "day": 21,
    "date": "Fri 13 Nov",
    "ledger_seq": 20,
-   "ledger_head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+   "ledger_head": "c7fc487f3715cd4139be6c98d59f3f67f22989bff11280bf60a8092c53e7942a",
    "proposal": {
     "campaign_id": "firsttime-a1",
     "merchant_id": "sharma-general-store",
@@ -1485,6 +1496,7 @@
      "customers_proposed": 16,
      "excluded_no_consent": 0,
      "excluded_frequency_cap": 0,
+     "excluded_in_holdout": 0,
      "eligible": 16,
      "treated": 12,
      "holdout": 4,
@@ -1493,7 +1505,8 @@
      "remaining_budget_paise": 50000,
      "baseline_return_bps": 952,
      "basket_used_paise": 22450,
-     "break_even_lift_bps": 562
+     "break_even_lift_bps": 562,
+     "auto_approved_this_week_paise": 0
     },
     "policy_fingerprint": "b5d4fc22b09faf14"
    },
@@ -1509,18 +1522,34 @@
    "day": 21,
    "date": "Fri 13 Nov",
    "ledger_seq": 20,
-   "ledger_head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+   "ledger_head": "c7fc487f3715cd4139be6c98d59f3f67f22989bff11280bf60a8092c53e7942a",
    "verify": {
     "intact": true,
     "checked": 20,
-    "broken_at": null
+    "broken_at": null,
+    "sealed": true
    },
    "tamper": {
     "edited_seq": 17,
     "edit": "nudge verdict STOP -> WORKED",
     "intact": false,
     "checked": 17,
-    "broken_at": 17
+    "broken_at": 17,
+    "sealed": false
+   },
+   "rewrite": {
+    "public": {
+     "intact": true,
+     "checked": 20,
+     "broken_at": null,
+     "sealed": false
+    },
+    "sealed": {
+     "intact": false,
+     "checked": 17,
+     "broken_at": 17,
+     "sealed": true
+    }
    },
    "kinds": [
     "POLICY_SET",
@@ -1548,11 +1577,12 @@
  ],
  "ledger": {
   "entries": 20,
-  "head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+  "head": "c7fc487f3715cd4139be6c98d59f3f67f22989bff11280bf60a8092c53e7942a",
   "verify": {
    "intact": true,
    "checked": 20,
-   "broken_at": null
+   "broken_at": null,
+   "sealed": true
   }
  }
 }

@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT))
 from munim import __version__  # noqa: E402
 from munim.agent import ReferenceAgent  # noqa: E402
 from munim.engine import Munim, SimClock  # noqa: E402
-from munim.ledger import verify_entries  # noqa: E402
+from munim.ledger import entry_hash, verify_entries  # noqa: E402
 from munim.measurement import evaluate, stable_seed  # noqa: E402
 from munim.models import MerchantPolicy  # noqa: E402
 from munim.money import fmt_inr as inr  # noqa: E402
@@ -129,7 +129,7 @@ def run(seed: int, quiet: bool) -> dict:
     # 5. Owner approves on the Soundbox; Munim re-checks before spending.
     d2b = munim.approve(p2.campaign_id)
     rec_a = munim.campaigns[p2.campaign_id]
-    step("approval", "Owner says 'haan'. Munim re-checks, reserves budget, issues a passport", "merchant",
+    step("approval", "Owner taps 'Haan'. Munim re-checks, reserves budget, issues a passport", "merchant",
          decision=d2b.to_dict(), status=rec_a["status"], passport=rec_a["passport"].public(),
          offer=rec_a.get("offer"),
          soundbox={"hi": f"Offer chalu. {d2b.numbers['treated']} grahakon ko WhatsApp par bheja gaya. "
@@ -181,10 +181,13 @@ def run(seed: int, quiet: bool) -> dict:
          soundbox=outcome_line(p4, res_b, rec_b["released_paise"]))
 
     # 9. Kill switch.
-    munim.set_kill_switch(True)
-    step("kill", "Owner: 'Munim, sab band karo'", "merchant",
-         soundbox={"hi": "Theek hai. Ab koi bhi offer aapki manzoori ke bina nahi chalega.",
-                   "en": "Done. No offer runs without your approval now."})
+    kill = munim.set_kill_switch(True)
+    n_cancelled = len(kill["cancelled"])
+    running_hi = f"{n_cancelled} chalu offer band kar diye. " if n_cancelled else "Abhi koi offer chalu nahi hai. "
+    running_en = f"{n_cancelled} running offer(s) cancelled. " if n_cancelled else "Nothing is running right now. "
+    step("kill", "Owner: 'Munim, sab band karo'", "merchant", cancelled=kill["cancelled"],
+         soundbox={"hi": f"Theek hai. {running_hi}Ab koi bhi naya offer aapki manzoori ke bina nahi chalega.",
+                   "en": f"Done. {running_en}No new offer runs without your approval."})
     first_timers = munim.segment("one_time_recent")
     p5 = agent.proposal(first_timers, policy.merchant_id, "firsttime-a1", name="Bring first-timers back",
                         reward_paise=1_000, min_bill_paise=20_000, holdout_pct=20,
@@ -200,9 +203,20 @@ def run(seed: int, quiet: bool) -> dict:
     target = next(e for e in tampered if e["kind"] == "OUTCOME" and e["payload"]["campaign_id"] == p4.campaign_id)
     target["payload"]["result"]["verdict"] = "WORKED"
     tamper = verify_entries(tampered)
+    # A determined attacker edits the same entry and recomputes every later hash: the public chain then
+    # checks out, but the seals (HMAC under Munim's key) do not.
+    rewritten = munim.ledger.export()
+    seq = target["seq"]
+    rewritten[seq - 1]["payload"]["result"]["verdict"] = "WORKED"
+    prev = rewritten[seq - 2]["hash"]
+    for e in rewritten[seq - 1:]:
+        e["prev_hash"] = prev
+        e["hash"] = entry_hash(prev, {k: v for k, v in e.items() if k not in ("hash", "seal")})
+        prev = e["hash"]
+    rewrite = {"public": verify_entries(rewritten), "sealed": munim.verify_export(rewritten)}
     step("audit", "Anyone can check the record. Quiet edits break the chain.", "auditor",
          verify=verify, tamper={"edited_seq": target["seq"], "edit": "nudge verdict STOP -> WORKED", **tamper},
-         kinds=[e["kind"] for e in munim.ledger.entries])
+         rewrite=rewrite, kinds=[e["kind"] for e in munim.ledger.entries])
 
     say(f"\nLedger: {verify}  |  tamper test: {tamper}")
     return {

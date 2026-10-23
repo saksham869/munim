@@ -79,6 +79,8 @@ class ReferenceAgent:
             reward = min(reward, c["max_reward_paise"])
         if "max_reward_for_payback_paise" in c:
             reward = min(reward, c["max_reward_for_payback_paise"])
+        if "max_reward_for_recent_stop_paise" in c:
+            reward = min(reward, c["max_reward_for_recent_stop_paise"])
         reward = (reward // STEP_PAISE) * STEP_PAISE
         if reward < 1_000:
             return None  # below ₹10 an offer is not worth sending

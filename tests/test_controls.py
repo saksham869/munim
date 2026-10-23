@@ -149,7 +149,7 @@ def ledger():
 
 
 def test_untouched_ledger_verifies(ledger):
-    assert ledger.verify() == {"intact": True, "checked": 5, "broken_at": None}
+    assert ledger.verify() == {"intact": True, "checked": 5, "broken_at": None, "sealed": False}
 
 
 def test_edited_entry_is_detected(ledger):

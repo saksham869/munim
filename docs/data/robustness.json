@@ -1,0 +1,157 @@
+{
+ "generated_by": "scripts/eval_robustness.py",
+ "synthetic": true,
+ "trials": 1000,
+ "samples_per_evaluation": 4000,
+ "seed": 7,
+ "true_network_mean_bps": 2242,
+ "decision": "stop if P(profit) < 0.50, else keep",
+ "shop_only": {
+  "correct_rate": 0.682,
+  "profitable_offers_stopped_rate": 0.447,
+  "losing_offers_kept_rate": 0.228,
+  "net_per_campaign_paise": 1021
+ },
+ "pooled_with_shifted_prior": [
+  {
+   "prior_centre_bps": 1242,
+   "shift_pp": -10.0,
+   "correct_rate": 0.568,
+   "profitable_offers_stopped_rate": 0.027,
+   "losing_offers_kept_rate": 0.712,
+   "net_per_campaign_paise": -330
+  },
+  {
+   "prior_centre_bps": 1742,
+   "shift_pp": -5.0,
+   "correct_rate": 0.695,
+   "profitable_offers_stopped_rate": 0.088,
+   "losing_offers_kept_rate": 0.455,
+   "net_per_campaign_paise": 953
+  },
+  {
+   "prior_centre_bps": 2242,
+   "shift_pp": 0.0,
+   "correct_rate": 0.752,
+   "profitable_offers_stopped_rate": 0.244,
+   "losing_offers_kept_rate": 0.25,
+   "net_per_campaign_paise": 1585
+  },
+  {
+   "prior_centre_bps": 2742,
+   "shift_pp": 5.0,
+   "correct_rate": 0.748,
+   "profitable_offers_stopped_rate": 0.455,
+   "losing_offers_kept_rate": 0.112,
+   "net_per_campaign_paise": 1479
+  },
+  {
+   "prior_centre_bps": 3242,
+   "shift_pp": 10.0,
+   "correct_rate": 0.697,
+   "profitable_offers_stopped_rate": 0.685,
+   "losing_offers_kept_rate": 0.039,
+   "net_per_campaign_paise": 1023
+  }
+ ],
+ "pooled_with_prior_strength": [
+  {
+   "strength": 20,
+   "correct_rate": 0.749,
+   "profitable_offers_stopped_rate": 0.222,
+   "losing_offers_kept_rate": 0.271,
+   "net_per_campaign_paise": 1498
+  },
+  {
+   "strength": 60,
+   "correct_rate": 0.752,
+   "profitable_offers_stopped_rate": 0.244,
+   "losing_offers_kept_rate": 0.25,
+   "net_per_campaign_paise": 1585
+  },
+  {
+   "strength": 120,
+   "correct_rate": 0.745,
+   "profitable_offers_stopped_rate": 0.244,
+   "losing_offers_kept_rate": 0.262,
+   "net_per_campaign_paise": 1545
+  }
+ ],
+ "seed_spread": [
+  {
+   "seed": 101,
+   "shop_only": {
+    "correct_rate": 0.688,
+    "profitable_offers_stopped_rate": 0.388,
+    "losing_offers_kept_rate": 0.261,
+    "net_per_campaign_paise": 952
+   },
+   "pooled": {
+    "correct_rate": 0.759,
+    "profitable_offers_stopped_rate": 0.261,
+    "losing_offers_kept_rate": 0.227,
+    "net_per_campaign_paise": 1571
+   }
+  },
+  {
+   "seed": 102,
+   "shop_only": {
+    "correct_rate": 0.679,
+    "profitable_offers_stopped_rate": 0.455,
+    "losing_offers_kept_rate": 0.227,
+    "net_per_campaign_paise": 942
+   },
+   "pooled": {
+    "correct_rate": 0.749,
+    "profitable_offers_stopped_rate": 0.271,
+    "losing_offers_kept_rate": 0.237,
+    "net_per_campaign_paise": 1523
+   }
+  },
+  {
+   "seed": 103,
+   "shop_only": {
+    "correct_rate": 0.668,
+    "profitable_offers_stopped_rate": 0.458,
+    "losing_offers_kept_rate": 0.24,
+    "net_per_campaign_paise": 925
+   },
+   "pooled": {
+    "correct_rate": 0.715,
+    "profitable_offers_stopped_rate": 0.28,
+    "losing_offers_kept_rate": 0.288,
+    "net_per_campaign_paise": 1340
+   }
+  },
+  {
+   "seed": 104,
+   "shop_only": {
+    "correct_rate": 0.673,
+    "profitable_offers_stopped_rate": 0.433,
+    "losing_offers_kept_rate": 0.246,
+    "net_per_campaign_paise": 979
+   },
+   "pooled": {
+    "correct_rate": 0.757,
+    "profitable_offers_stopped_rate": 0.236,
+    "losing_offers_kept_rate": 0.248,
+    "net_per_campaign_paise": 1733
+   }
+  },
+  {
+   "seed": 105,
+   "shop_only": {
+    "correct_rate": 0.669,
+    "profitable_offers_stopped_rate": 0.43,
+    "losing_offers_kept_rate": 0.251,
+    "net_per_campaign_paise": 1294
+   },
+   "pooled": {
+    "correct_rate": 0.746,
+    "profitable_offers_stopped_rate": 0.253,
+    "losing_offers_kept_rate": 0.255,
+    "net_per_campaign_paise": 1993
+   }
+  }
+ ]
+}

@@ -126,6 +126,7 @@
 
   var INT_FIELDS = ["reward_paise", "min_bill_paise", "holdout_pct", "validity_days"];
   var HUMAN_CLEARABLE = ["approval_required", "kill_switch"];
+  var STOP_COOLDOWN_DAYS = 30;
 
   function inr(p) { return fmtInr(p); }
   function cap(p) { return fmtInr(p, { floor: true }); }  // limits are never shown above their true value
@@ -207,15 +208,32 @@
         "warna pata hi nahi chalega offer kaam kiya ya nahi.");
     }
 
+    // 3b. An offer that was just stopped for not paying can't come straight back at the same size.
+    var stopped = (ctx.recent_stops || []).filter(function (r) {
+      return seg && r.segment_kind === seg.kind && p.reward_paise >= r.reward_paise;
+    }).map(function (r) { return r.reward_paise; });
+    if (stopped.length) {
+      var low = Math.min.apply(null, stopped);
+      constraints.max_reward_for_recent_stop_paise = low - 1;
+      deny("recently_stopped",
+        "A " + inr(low) + " offer to this group was stopped in the last " + STOP_COOLDOWN_DAYS + " days because it didn't pay; " +
+        "offers of " + inr(low) + " or more to them wait until the " + STOP_COOLDOWN_DAYS + " days are over.",
+        "Is group ko " + inr(low) + " wala offer pichhle " + STOP_COOLDOWN_DAYS + " din mein band hua kyunki fayda nahi hua; " +
+        inr(low) + " ya zyada ka offer " + STOP_COOLDOWN_DAYS + " din tak dobara nahi.");
+    }
+
     // 4. Consent and frequency cap: customers are filtered out, not argued about.
     var offerCap = pol.max_offers_per_customer_30d;
     var consented = p.customers.filter(function (c) { return !!c.consented; });
-    var eligible = consented.filter(function (c) { return !isCapped(c, offerCap); });
+    var uncapped = consented.filter(function (c) { return !isCapped(c, offerCap); });
+    var eligible = uncapped.filter(function (c) { return !c.in_holdout; });
     var noConsent = p.customers.length - consented.length;
-    var capped = consented.length - eligible.length;
+    var capped = consented.length - uncapped.length;
+    var held = uncapped.length - eligible.length;
     numbers.customers_proposed = p.customers.length;
     numbers.excluded_no_consent = noConsent;
     numbers.excluded_frequency_cap = capped;
+    numbers.excluded_in_holdout = held;
     numbers.eligible = eligible.length;
     if (noConsent) {
       reasons.push({ code: "excluded_no_consent", effect: NOTE,
@@ -226,6 +244,12 @@
       reasons.push({ code: "excluded_frequency_cap", effect: NOTE,
         en: capped + " customer(s) already got " + offerCap + " offers in the last 30 days and were left out.",
         hi: capped + " grahakon ko 30 din mein pehle hi " + offerCap + " offer mil chuke, unhe chhod diya." });
+    }
+    if (held) {
+      reasons.push({ code: "excluded_in_holdout", effect: NOTE,
+        en: held + " customer(s) are in another offer's comparison group right now and were left out, " +
+            "so that comparison stays fair.",
+        hi: held + " grahak abhi doosre offer ki tulna wale group mein hain, unhe chhod diya taaki tulna sahi rahe." });
     }
 
     // 5. Enough people to measure anything.
@@ -292,13 +316,23 @@
         "ummeed " + pp(pol.max_plausible_lift_bps) + " tak hi. Zyada se zyada " + cap(rMax) + " cashback.");
     }
 
-    // 9. Big spends wait for the merchant.
-    if (maxSpend > pol.approval_threshold_paise) {
-      reasons.push({ code: "approval_required", effect: GATE,
-        en: "Worst-case spend " + inr(maxSpend) + " is above your " + inr(pol.approval_threshold_paise) + " " +
-            "auto-approve limit, so it waits for your OK.",
-        hi: "Is offer mein " + inr(maxSpend) + " tak kharch ho sakta hai, aapki " + inr(pol.approval_threshold_paise) + " " +
-            "ki seema se zyada. Aapki manzoori chahiye." });
+    // 9. Big spends wait for the merchant. The limit covers the week's automatic approvals together.
+    var auto = ctx.auto_approved_paise || 0;
+    numbers.auto_approved_this_week_paise = auto;
+    if (maxSpend + auto > pol.approval_threshold_paise) {
+      var en, hi;
+      if (auto) {
+        en = "Worst-case spend " + inr(maxSpend) + ", on top of " + inr(auto) + " already approved automatically this week, " +
+             "is above your " + inr(pol.approval_threshold_paise) + " auto-approve limit, so it waits for your OK.";
+        hi = "Is offer mein " + inr(maxSpend) + " tak kharch ho sakta hai, aur is hafte " + inr(auto) + " pehle hi apne aap " +
+             "manzoor ho chuka; aapki " + inr(pol.approval_threshold_paise) + " ki seema se zyada. Aapki manzoori chahiye.";
+      } else {
+        en = "Worst-case spend " + inr(maxSpend) + " is above your " + inr(pol.approval_threshold_paise) + " " +
+             "auto-approve limit, so it waits for your OK.";
+        hi = "Is offer mein " + inr(maxSpend) + " tak kharch ho sakta hai, aapki " + inr(pol.approval_threshold_paise) + " " +
+             "ki seema se zyada. Aapki manzoori chahiye.";
+      }
+      reasons.push({ code: "approval_required", effect: GATE, en: en, hi: hi });
     }
 
     // 10. Kill switch: nothing spends without a human.
@@ -326,7 +360,9 @@
    * evaluate(policy, proposal, ctx) -> decision
    *   policy:   the MerchantPolicy fields (snake_case, as in scenario.json)
    *   proposal: {campaign_id, reward_paise, min_bill_paise, holdout_pct, validity_days, customers: [...]}
-   *   ctx:      {segment: {window_days, baseline_return_bps, avg_basket_paise}, remaining_budget_paise, kill_switch}
+   *   ctx:      {segment: {kind, window_days, baseline_return_bps, avg_basket_paise}, remaining_budget_paise, kill_switch,
+ *              auto_approved_paise, recent_stops: [{segment_kind, reward_paise}]}
+ *   customers: [{consented, capped | offers_30d, in_holdout}]
    * Fails closed: anything unexpected is a DENY.
    */
   function evaluate(policy, proposal, ctx) {
@@ -369,6 +405,7 @@
       reward = Math.min(reward, c.max_reward_paise);
     }
     if (c.max_reward_for_payback_paise !== undefined) reward = Math.min(reward, c.max_reward_for_payback_paise);
+    if (c.max_reward_for_recent_stop_paise !== undefined) reward = Math.min(reward, c.max_reward_for_recent_stop_paise);
     reward = num(floorDiv(big(reward), big(STEP_PAISE))) * STEP_PAISE;
     if (reward < 1000) return null;  // below Rs 10 an offer is not worth sending
     if (c.min_holdout_pct !== undefined) holdout = Math.max(holdout, c.min_holdout_pct);
@@ -384,6 +421,7 @@
   return {
     ALLOW: ALLOW, GATE: GATE, DENY: DENY, NOTE: NOTE,
     HUMAN_CLEARABLE: HUMAN_CLEARABLE,
+    STOP_COOLDOWN_DAYS: STOP_COOLDOWN_DAYS,
     evaluate: evaluate,
     replan: replan,
     economics: {

@@ -48,11 +48,16 @@ def run_js(cases: list, formats: list) -> dict:
     return json.loads(out.stdout)
 
 
+KINDS = ("lapsed_regulars", "one_time_recent", "occasional_active")
+
+
 def build_case(*, policy: MerchantPolicy, n: int, baseline: int, basket: int, window: int, consented: list,
                offers: list, targeted: list, reward: int, min_bill: int, holdout: int, validity: int,
-               remaining: int, kill: bool, cid: str) -> tuple:
+               remaining: int, kill: bool, cid: str, kind: str = "lapsed_regulars", auto: int = 0,
+               stops: tuple = (), held: list | None = None) -> tuple:
+    held = held or [False] * n
     ids = tuple(f"c{i:03d}" for i in range(n))
-    seg = Segment(segment_id="seg@parity", kind="lapsed_regulars", name="parity", description="parity",
+    seg = Segment(segment_id="seg@parity", kind=kind, name="parity", description="parity",
                   customer_ids=ids, baseline_return_bps=baseline, avg_basket_paise=basket, window_days=window)
     chosen = tuple(ids[i] for i in targeted)
     proposal = CampaignProposal(campaign_id=cid, merchant_id=policy.merchant_id, segment_id=seg.segment_id,
@@ -60,14 +65,19 @@ def build_case(*, policy: MerchantPolicy, n: int, baseline: int, basket: int, wi
                                 holdout_pct=holdout, validity_days=validity)
     ctx = EvalContext(segment=seg, consented=frozenset(ids[i] for i in range(n) if consented[i]),
                       offers_last_30d={ids[i]: offers[i] for i in range(n) if offers[i]},
-                      remaining_budget_paise=remaining, kill_switch=kill, holdout_salt=b"parity")
+                      remaining_budget_paise=remaining, kill_switch=kill, holdout_salt=b"parity",
+                      auto_approved_paise=auto, recent_stops=tuple(stops),
+                      in_active_holdout=frozenset(ids[i] for i in range(n) if held[i]))
     js_case = {
         "policy": {k: v for k, v in policy.to_dict().items() if k != "fingerprint"},
         "proposal": {"campaign_id": cid, "reward_paise": reward, "min_bill_paise": min_bill, "holdout_pct": holdout,
                      "validity_days": validity,
-                     "customers": [{"consented": consented[i], "offers_30d": offers[i]} for i in targeted]},
-        "ctx": {"segment": {"window_days": window, "baseline_return_bps": baseline, "avg_basket_paise": basket},
-                "remaining_budget_paise": remaining, "kill_switch": kill},
+                     "customers": [{"consented": consented[i], "offers_30d": offers[i], "in_holdout": held[i]}
+                                   for i in targeted]},
+        "ctx": {"segment": {"kind": kind, "window_days": window, "baseline_return_bps": baseline,
+                            "avg_basket_paise": basket},
+                "remaining_budget_paise": remaining, "kill_switch": kill, "auto_approved_paise": auto,
+                "recent_stops": list(stops)},
         "previous": {"reward_paise": reward, "min_bill_paise": min_bill, "holdout_pct": holdout,
                      "customer_count": len(targeted)},
     }
@@ -104,6 +114,10 @@ def random_case(rng: random.Random, i: int) -> tuple:
         reward=reward, min_bill=min_bill, holdout=rng.choice([0, 20, 25, rng.randint(-5, 110)]),
         validity=rng.choice([window, window, policy.max_validity_days, rng.randint(-1, 40)]),
         remaining=rng.choice([0, 50_000, rng.randint(0, 300_000)]), kill=rng.random() < 0.2, cid=f"r{i}",
+        kind=rng.choice(KINDS), auto=rng.choice([0, 0, 0, rng.randint(1, 60_000)]),
+        stops=tuple({"segment_kind": rng.choice(KINDS), "reward_paise": rng.choice([500, 1_000, 1_500, rng.randint(1, 20_000)])}
+                    for _ in range(rng.choice([0, 0, 1, 2]))),
+        held=[rng.random() < 0.08 for _ in range(n)],
     )
 
 
@@ -127,6 +141,7 @@ def scenario_cases() -> list:
             reward=prop["reward_paise"], min_bill=prop["min_bill_paise"], holdout=prop["holdout_pct"],
             validity=prop["validity_days"], remaining=st["decision"]["numbers"].get("remaining_budget_paise", 50_000),
             kill=any(r["code"] == "kill_switch" for r in st["decision"]["reasons"]), cid=prop["campaign_id"],
+            kind=seg["kind"], auto=st["decision"]["numbers"].get("auto_approved_this_week_paise", 0),
         ), st["decision"]))
     return cases
 
@@ -196,8 +211,9 @@ def test_random_cases_match():
         decisions_seen.update(r["code"] for r in got["reasons"])
     # The random cases must actually exercise every rule, or the comparison proves little.
     for code in ("ALLOW", "GATE", "DENY", "invalid_proposal", "margin_floor", "no_measurement", "excluded_no_consent",
-                 "excluded_frequency_cap", "too_small_to_measure", "over_budget", "cannot_pay_back",
-                 "unrealistic_payback", "approval_required", "kill_switch", "within_rules"):
+                 "excluded_frequency_cap", "excluded_in_holdout", "recently_stopped", "too_small_to_measure",
+                 "over_budget", "cannot_pay_back", "unrealistic_payback", "approval_required", "kill_switch",
+                 "within_rules"):
         assert code in decisions_seen, code
 
 

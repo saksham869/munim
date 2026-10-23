@@ -30,6 +30,9 @@ SYSTEM_PROMPT = (
 )
 
 REQUIRED_INTS = ("reward_rupees", "min_bill_rupees", "holdout_pct", "customer_count")
+# Same ranges the HTTP API accepts, so neither entry point takes absurd numbers.
+LIMITS = {"reward_rupees": (1, 10_000), "min_bill_rupees": (1, 100_000), "holdout_pct": (0, 100),
+          "customer_count": (1, 100_000)}
 
 
 class LLMError(Exception):
@@ -70,6 +73,9 @@ def parse_reply(text: str, *, segment: Segment, merchant_id: str, campaign_id: s
         value = data.get(key)
         if isinstance(value, bool) or not isinstance(value, int):
             raise LLMError(f"{key} must be an integer")
+        lo, hi = LIMITS[key]
+        if not lo <= value <= hi:
+            raise LLMError(f"{key} must be between {lo} and {hi}")
     count = max(1, min(data["customer_count"], len(segment.customer_ids)))
     return CampaignProposal(
         campaign_id=campaign_id,

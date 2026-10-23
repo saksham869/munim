@@ -9,7 +9,11 @@
 
 from __future__ import annotations
 
+import functools
+import hashlib
+import hmac
 import os
+import threading
 import time
 from collections import Counter
 from datetime import date, datetime, timedelta, timezone
@@ -22,9 +26,18 @@ from .models import ALLOW, DENY, GATE, CampaignProposal, Decision, MerchantPolic
 from .offers import MockPaytmOffers, UpstreamUnknown
 from .passport import PassportError, PassportIssuer, digest_ids
 from .holdout import campaign_salt
-from .policy import HUMAN_CLEARABLE, EvalContext, PolicyEngine
+from .policy import HUMAN_CLEARABLE, STOP_COOLDOWN_DAYS, EvalContext, PolicyEngine
 
 IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def _locked(method):
+    """Serialise every state change: decide, reserve, execute and record happen as one step."""
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return wrapper
 
 
 class SimClock:
@@ -88,7 +101,9 @@ class Munim:
         self.policy = policy
         self._engine = PolicyEngine(policy)
         self._secret = secret or os.urandom(32)
-        self.ledger = Ledger(clock=self._stamp)
+        self._lock = threading.RLock()
+        # Seals on every ledger entry use a key derived from Munim's secret; it never appears in the ledger.
+        self.ledger = Ledger(clock=self._stamp, key=hmac.new(self._secret, b"munim-ledger-seal", hashlib.sha256).digest())
         self.budget = WeeklyBudget(policy.weekly_budget_paise)
         self.passports = PassportIssuer(self._secret, passport_ttl_seconds, clock=self.clock.now,
                                         nonce_source=nonce_source)
@@ -111,6 +126,7 @@ class Munim:
     def week(self) -> int:
         return (self.clock.day - self.start_day) // 7
 
+    @_locked
     def advance_to_day(self, day: int, hour: int = 9) -> None:
         self.clock.advance_to(day, hour)
 
@@ -126,6 +142,15 @@ class Munim:
         return counts
 
     def context_for(self, proposal: CampaignProposal) -> EvalContext:
+        others = [r for cid, r in self.campaigns.items() if cid != proposal.campaign_id]
+        auto = sum(r["decision"].numbers.get("max_spend_paise", 0) for r in others
+                   if r.get("approved_by") == "policy" and r.get("week") == self.week
+                   and r["status"] in ("AUTHORIZED", "LIVE", "UNKNOWN", "COMPLETED", "STOPPED"))
+        stops = tuple({"segment_kind": self.segments[r["proposal"].segment_id].kind,
+                       "reward_paise": r["proposal"].reward_paise}
+                      for r in others
+                      if r["status"] == "STOPPED" and self.clock.day - r.get("closed_day", -10**9) < STOP_COOLDOWN_DAYS)
+        held = frozenset(c for r in others if r["status"] in ("LIVE", "UNKNOWN") for c in r["decision"].holdout_ids)
         return EvalContext(
             segment=self.segments.get(proposal.segment_id),
             consented=self.data.consented,
@@ -133,6 +158,9 @@ class Munim:
             remaining_budget_paise=self.budget.remaining(self.week),
             kill_switch=self.kill_switch,
             holdout_salt=campaign_salt(self._secret, proposal.campaign_id),
+            auto_approved_paise=auto,
+            recent_stops=stops,
+            in_active_holdout=held,
         )
 
     def _get(self, campaign_id: str) -> dict:
@@ -157,6 +185,7 @@ class Munim:
 
     # ---------------------------------------------------------------- flow
 
+    @_locked
     def propose(self, proposal: CampaignProposal) -> Decision:
         self.ledger.append("PROPOSAL", {"campaign": proposal.to_dict()})
         if proposal.campaign_id in self.campaigns:
@@ -185,6 +214,7 @@ class Munim:
             self._authorize(record, approved_by="policy")
         return decision
 
+    @_locked
     def approve(self, campaign_id: str, actor: str = "merchant") -> Decision:
         record = self._get(campaign_id)
         if record["status"] != "PENDING_APPROVAL":
@@ -202,6 +232,7 @@ class Munim:
         self._authorize(record, approved_by=actor)
         return fresh
 
+    @_locked
     def reject(self, campaign_id: str, actor: str = "merchant") -> None:
         record = self._get(campaign_id)
         if record["status"] != "PENDING_APPROVAL":
@@ -263,10 +294,22 @@ class Munim:
                                         "customers": len(d.treated_ids),
                                         "mock": bool(getattr(self.offers, "is_mock", False))})
 
+    @_locked
     def resolve_unknown(self, campaign_id: str, offer_exists: bool, actor: str = "merchant") -> None:
+        """A human confirms what happened after an ambiguous upstream call (create or cancel)."""
         record = self._get(campaign_id)
         if record["status"] != "UNKNOWN":
             raise ValueError(f"{campaign_id} is {record['status']}, not UNKNOWN")
+        if record.get("unknown_op") == "cancel":
+            if offer_exists:
+                record["status"] = "LIVE"  # the cancel did not take effect
+            else:
+                record["status"] = "CANCELLED"
+                record["released_paise"] = self.budget.settle(campaign_id, 0)
+            record.pop("unknown_op")
+            self.ledger.append("UNKNOWN_RESOLVED", {"campaign_id": campaign_id, "actor": actor,
+                                                    "operation": "cancel", "offer_exists": offer_exists})
+            return
         if offer_exists:
             record.update(status="LIVE", live_day=self.clock.day)
             self._issued.extend((self.clock.day, cid) for cid in record["decision"].treated_ids)
@@ -276,6 +319,7 @@ class Munim:
         self.ledger.append("UNKNOWN_RESOLVED", {"campaign_id": campaign_id, "actor": actor,
                                                 "offer_exists": offer_exists})
 
+    @_locked
     def record_outcome(self, campaign_id: str, outcome: Outcome):
         record = self._get(campaign_id)
         if record["status"] != "LIVE":
@@ -298,10 +342,35 @@ class Munim:
                                        "action": "stopped" if result.verdict == STOP else "kept"})
         return result
 
-    def set_kill_switch(self, on: bool, actor: str = "merchant") -> None:
+    @_locked
+    def set_kill_switch(self, on: bool, actor: str = "merchant") -> dict:
+        """Turning it on holds every new offer for the owner and cancels offers already running."""
         self.kill_switch = bool(on)
-        self.ledger.append("KILL_SWITCH", {"on": self.kill_switch, "actor": actor})
+        cancelled, unknown = [], []
+        if self.kill_switch:
+            for cid, record in self.campaigns.items():
+                if record["status"] != "LIVE" or "offer" not in record:
+                    continue
+                try:
+                    offer = self.offers.cancel_offer(offer_id=record["offer"]["offer_id"])
+                except UpstreamUnknown as exc:
+                    record.update(status="UNKNOWN", unknown_op="cancel")
+                    unknown.append(cid)
+                    self.ledger.append("EXECUTION_UNKNOWN", {
+                        "campaign_id": cid, "error": str(exc),
+                        "action": "cancel may not have taken effect; budget stays reserved; a human must confirm"})
+                    continue
+                released = self.budget.settle(cid, offer.get("redeemed_paise", 0))
+                record.update(status="CANCELLED", released_paise=released, closed_day=self.clock.day)
+                cancelled.append(cid)
+                self.ledger.append("CANCELLED_BY_OWNER", {"campaign_id": cid, "actor": actor,
+                                                          "redeemed_paise": offer.get("redeemed_paise", 0),
+                                                          "released_paise": released})
+        self.ledger.append("KILL_SWITCH", {"on": self.kill_switch, "actor": actor,
+                                           "cancelled": cancelled, "cancel_unknown": unknown})
+        return {"on": self.kill_switch, "cancelled": cancelled, "cancel_unknown": unknown}
 
+    @_locked
     def update_policy(self, policy: MerchantPolicy, actor: str = "merchant") -> None:
         if policy.merchant_id != self.policy.merchant_id:
             raise ValueError("policy belongs to a different merchant")
@@ -312,6 +381,10 @@ class Munim:
 
     def verify_ledger(self) -> dict:
         return self.ledger.verify()
+
+    def verify_export(self, entries: list) -> dict:
+        """Check an exported ledger, including the seals only Munim's key can produce."""
+        return self.ledger.verify_export(entries)
 
     def state(self) -> dict:
         return {

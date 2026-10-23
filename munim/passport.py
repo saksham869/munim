@@ -24,7 +24,8 @@ class PassportError(Exception):
 
 
 def digest_ids(ids) -> str:
-    return hashlib.sha256("\n".join(sorted(ids)).encode()).hexdigest()
+    """Fingerprint of a customer list. JSON-encoding the sorted list keeps it injective: ("a", "b") != ("a\\nb",)."""
+    return hashlib.sha256(canonical_json(sorted(ids)).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -92,7 +93,8 @@ class PassportIssuer:
             raise PassportError("expired")
         if passport.policy_fingerprint != policy_fingerprint:
             raise PassportError("stale_policy")
-        if digest_ids(treated_ids) != passport.treated_digest:
+        ids = tuple(treated_ids)
+        if len(ids) != passport.treated_count or digest_ids(ids) != passport.treated_digest:
             raise PassportError("scope_mismatch")
 
     def consume(self, passport: Passport, *, policy_fingerprint: str, treated_ids) -> None:

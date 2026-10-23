@@ -406,7 +406,7 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
   <section class="hero wrap" aria-labelledby="hero-title">
     <div class="hero-copy">
       <h1 id="hero-title">The CFO for every merchant’s AI growth agent</h1>
-      <p class="lede">AI agents are starting to run cashback offers for small shops. Munim checks every offer against the shop owner’s own rules before a rupee moves, keeps a comparison group so the result can be measured, and stops offers that don’t pay. The owner hears every decision on the Soundbox, in Hinglish.</p>
+      <p class="lede">AI agents are starting to spend small shops’ money on growth; Paytm’s Pi agent already suggests ad budgets for small businesses. Munim checks every offer against the shop owner’s own rules before a rupee moves, keeps a comparison group so the result can be measured, and stops offers that don’t pay. The owner hears every decision on the Soundbox, in Hinglish.</p>
       <div class="hero-cta">
         <a class="btn btn-primary" href="#replay">Watch the three-week replay</a>
         <a class="btn btn-secondary" href="#try">Try to make it overspend</a>
@@ -517,7 +517,7 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
   </section>
 
   <section id="proof" class="wrap section" aria-labelledby="proof-title">
-    <h2 id="proof-title">Measuring across many shops beats measuring one</h2>
+    <h2 id="proof-title">A pooled baseline beats one small comparison group</h2>
     <p class="intro">One kirana’s campaign reaches 20 to 60 customers, so its own numbers are noisy. Munim starts from a return rate pooled across similar shops and updates it with this shop’s data. We tested both ways on 1,000 simulated campaigns where the true effect is known.</p>
     <div class="proof-grid">
       <figure class="chart-fig">
@@ -531,10 +531,17 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
         <p class="note" id="rates-note"></p>
       </div>
     </div>
+    <h3 class="subhead">If the pooled rate is wrong</h3>
+    <p class="note" style="margin-top:8px">The same 1,000 campaigns, re-scored with the pooled return rate deliberately off. Too high only makes Munim cautious; too low makes deadweight look like lift.</p>
+    <div class="tbl-scroll">
+      <table class="cmp" id="robust"></table>
+    </div>
+    <p class="note" id="robust-note"></p>
     <h3 class="subhead">The two offers from the replay</h3>
     <div class="tbl-scroll">
       <table class="cmp cases" id="cases"></table>
     </div>
+    <p class="note">One run, picked to illustrate the failure mode: by chance 5 of 9 held-back regulars came back anyway, and 0 of 6 occasional shoppers did. The 1,000-campaign test above is the evidence.</p>
     <p class="note" id="eval-setup"></p>
   </section>
 
@@ -621,7 +628,7 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
       <ol class="flow-list steps-ol" style="margin-top:28px">
         <li><b>The growth agent proposes</b> an offer: who gets it, how much cashback, on what bill. It cannot pay anyone.</li>
         <li><b>Munim decides</b> using numbers it computed from the shop’s payments: ALLOW, GATE (the owner must say yes) or DENY with the exact fix.</li>
-        <li><b>The owner answers on the Soundbox</b> when an offer needs a yes, and can pause all spending with one sentence.</li>
+        <li><b>The owner taps Haan</b> on the Soundbox screen, or in the app, when an offer needs a yes. One sentence cancels running offers and holds every new one.</li>
         <li><b>Munim reserves the budget and signs a one-time passport</b>; only then do the offer rails send the offer.</li>
         <li><b>Measurement compares</b> customers who got the offer with those held back, using a return rate pooled across shops.</li>
         <li><b>Munim keeps or stops the offer</b> and tells the owner what it earned, in Hinglish.</li>
@@ -631,9 +638,9 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
         <li><strong>No model in the money path</strong><span>The rules are plain arithmetic on whole paise. The same proposal gets the same answer every time.</span></li>
         <li><strong>Fails closed</strong><span>If anything inside the engine breaks, the answer is DENY.</span></li>
         <li><strong>The agent can’t bring its own numbers</strong><span>Return rates and basket sizes come from the shop’s payments, computed and backtested by Munim.</span></li>
-        <li><strong>Money moves only with a passport</strong><span>Signed, single use, tied to one offer, its customers and the current rules. It expires in an hour.</span></li>
-        <li><strong>Budget is reserved first</strong><span>The worst case is held before an offer goes live; unspent money returns after measurement.</span></li>
-        <li><strong>Quiet edits break the chain</strong><span>Every step is hash-chained. Change one past entry and verification fails from there on.</span></li>
+        <li><strong>Every payout needs a passport</strong><span>Signed, single use, tied to one offer, its exact customers and the current rules; it expires in an hour. Munim checks it before calling the offer rails, and in production the rails must check it too.</span></li>
+        <li><strong>Budget is reserved first</strong><span>Deciding and reserving happen as one locked step, so parallel requests can’t overspend or over-message. Unspent money returns after measurement or cancellation.</span></li>
+        <li><strong>Edits and rewrites are caught</strong><span>Every step is hash-chained and sealed with a key only Munim holds. An edit breaks the chain; a full rewrite fails the seals.</span></li>
       </ul>
 
       <div class="stack">
@@ -642,7 +649,7 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
           <ul>
             <li>Python 3.9+ engine using only the standard library: rules, measurement, passports, ledger, budget.</li>
             <li>FastAPI service for proposals, approvals, the kill switch and the ledger.</li>
-            <li id="tests-line">143 tests with pytest, including a check that this page’s rules match the Python engine.</li>
+            <li id="tests-line">180 tests with pytest, including a check that this page’s rules match the Python engine.</li>
             <li>Optional LLM proposer for any OpenAI-compatible model. Off by default; its output is parsed strictly and still has to pass the rules.</li>
           </ul>
         </div>
@@ -664,10 +671,13 @@ input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22
     <ul class="limits">
       <li><b>The shop is synthetic.</b> 650 simulated customers with known behaviour, so the demo can show the truth next to Munim’s estimate.</li>
       <li><b>The offer rails are a mock.</b> It behaves like a real API, including timeouts that Munim quarantines instead of retrying, but no money moves.</li>
-      <li><b>Pooled return rates come from 20 simulated shops.</b> In production they would come from Paytm’s merchant cohorts.</li>
-      <li><b>Small campaigns stay uncertain for a while.</b> Munim says "not sure yet, keep measuring" rather than guessing.</li>
+      <li><b>Pooled return rates come from 20 simulated shops.</b> In production they would come from the shop’s own recent history where it has enough, and from similar Paytm shops where it doesn’t.</li>
+      <li><b>No live model runs in the demo.</b> The growth agent is a scripted reference agent; the LLM proposer exists but is tested only with a stub.</li>
+      <li><b>No merchant has seen it yet.</b> Everything about owners comes from published sources or the simulation.</li>
+      <li><b>Small campaigns stay uncertain for a while.</b> Munim says "not proven yet" and measures the next run, rather than guessing.</li>
+      <li><b>Reach is narrower than a shop’s customer list.</b> Cashback can only go to customers who can be identified and contacted, such as people paying with Paytm, and who opted in. The simulation assumes 93% opted in.</li>
       <li><b>The owner’s voice rules are typed in the demo script.</b> Speech recognition on the Soundbox is out of scope here.</li>
-      <li><b>One merchant, one process.</b> The budget lock and the ledger live in memory.</li>
+      <li><b>One merchant, one process.</b> The budget lock and the ledger live in memory. The API’s owner and agent tokens are optional; without them it runs open as a local demo.</li>
     </ul>
   </section>
 </main>
@@ -691,6 +701,7 @@ uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at
 
 <script src="data/scenario.js"></script>
 <script src="data/eval.js"></script>
+<script src="data/robustness.js"></script>
 <script src="rules.js"></script>
 <script>
 (function () {
@@ -762,9 +773,9 @@ uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at
   };
   var TAG = { DENY: "Refuses", GATE: "Asks owner", NOTE: "Note" };
   var VERDICT = {
-    WORKED: "It worked: keep it",
-    UNCERTAIN: "Not sure yet: keep running and measuring",
-    STOP: "Stop it"
+    WORKED: "It worked: it can run again",
+    UNCERTAIN: "Not proven yet: if it runs again, measure it again",
+    STOP: "Stop it: no rerun for 30 days"
   };
 
   function stamp(decision, animate) {
@@ -912,9 +923,9 @@ uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at
       case "policy": return "Owner sets the rules";
       case "insight": return "Munim reads the payments";
       case "decision": return st.proposal.name + ", try " + st.proposal.attempt;
-      case "approval": return "Owner says haan";
+      case "approval": return "Owner taps Haan";
       case "outcome": return st.name + ": result";
-      case "kill": return "Owner pauses spending";
+      case "kill": return "Owner stops spending";
       case "audit": return "Anyone checks the record";
       default: return st.title;
     }
@@ -1067,37 +1078,45 @@ uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at
     },
 
     kill: function () {
-      return [h("p", { style: "max-width:44em" }, "The kill switch is on. From now on every new offer waits for the owner’s yes, even one that is inside every rule.")];
+      return [h("p", { style: "max-width:44em" }, "The kill switch is on. Offers already running are cancelled and their unspent budget goes back; from now on every new offer waits for the owner’s yes, even one that is inside every rule.")];
     },
 
     audit: function (st) {
       var list = h("ol", { class: "chain", "aria-label": "Ledger entries" });
-      var status = h("p", { class: "verify-status" });
-      var btn = h("button", { type: "button", class: "btn btn-secondary" });
+      var status = h("p", { class: "verify-status", "aria-live": "polite" });
+      var editBtn = h("button", { type: "button", class: "btn btn-secondary" });
+      var rewriteBtn = st.rewrite ? h("button", { type: "button", class: "btn btn-secondary" }) : null;
+      var edited = st.tamper.edited_seq;
       function draw() {
         fill(list, st.kinds.map(function (k, i) {
           var seq = i + 1, cls = "ok";
-          if (tampered && seq === st.tamper.edited_seq) cls = "edited";
-          else if (tampered && seq > st.tamper.broken_at) cls = "broken";
+          if (tampered && seq === edited) cls = "edited";
+          else if (tampered === "edit" && seq > st.tamper.broken_at) cls = "broken";
+          else if (tampered === "rewrite" && seq > edited) cls = "broken";
           return h("li", { class: cls }, h("b", null, "#" + seq), k.replace(/_/g, " ").toLowerCase());
         }));
-        if (tampered) {
+        editBtn.textContent = tampered === "edit" ? "Undo the edit" : "Quietly edit entry " + edited;
+        if (rewriteBtn) rewriteBtn.textContent = tampered === "rewrite" ? "Undo the rewrite" : "Edit it and recompute every later hash";
+        if (tampered === "edit") {
           status.className = "verify-status bad";
           status.textContent = "Verification fails at entry " + st.tamper.broken_at + ": someone changed the " + st.tamper.edit.replace("->", "to") + ".";
-          btn.textContent = "Undo the edit";
+        } else if (tampered === "rewrite") {
+          status.className = "verify-status bad";
+          status.textContent = "The rewritten chain " + (st.rewrite.public.intact ? "passes" : "fails") +
+            " the public hash check, but entry " + st.rewrite.sealed.broken_at + "’s seal doesn’t match Munim’s key, so verification still fails there.";
         } else {
           status.className = "verify-status ok";
-          status.textContent = "All " + st.verify.checked + " entries check out. The chain is intact.";
-          btn.textContent = "Quietly edit entry " + st.tamper.edited_seq;
+          status.textContent = "All " + st.verify.checked + " entries check out, hashes and seals. The record is intact.";
         }
       }
-      btn.addEventListener("click", function () { tampered = !tampered; draw(); });
+      editBtn.addEventListener("click", function () { tampered = tampered === "edit" ? false : "edit"; draw(); });
+      if (rewriteBtn) rewriteBtn.addEventListener("click", function () { tampered = tampered === "rewrite" ? false : "rewrite"; draw(); });
       draw();
       return [
-        h("p", { style: "max-width:46em" }, "Each entry is sealed with the SHA-256 hash of the one before it. Latest seal: ",
+        h("p", { style: "max-width:46em" }, "Each entry carries the SHA-256 hash of the one before it, so anyone can check the chain, and a seal made with a key only Munim holds, so even a full rewrite shows. Latest hash: ",
           h("code", null, S.ledger.head.slice(0, 16) + "…")),
         list,
-        h("div", { class: "verify" }, btn, status)
+        h("div", { class: "verify" }, editBtn, rewriteBtn, status)
       ];
     }
   };
@@ -1298,6 +1317,27 @@ uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at
           h("td", null, chip(o.solo.verdict), h("small", null, share(o.solo.prob_profitable) + " chance it paid")),
           h("td", null, chip(o.result.verdict), h("small", null, share(o.result.prob_profitable) + " chance it paid")));
       })));
+    var RB = window.MUNIM_ROBUSTNESS;
+    if (RB) {
+      var row = function (label, r, ours) {
+        return h("tr", null, h("td", null, ours ? h("b", null, label) : label), h("td", null, rate(r.correct_rate)),
+          h("td", null, rate(r.losing_offers_kept_rate)), h("td", null, inr2(r.net_per_campaign_paise)));
+      };
+      var shifted = RB.pooled_with_shifted_prior.map(function (r) {
+        var label = r.shift_pp === 0 ? "Pooled rate correct" : "Pooled rate " + Math.abs(r.shift_pp) + " points too " + (r.shift_pp < 0 ? "low" : "high");
+        return row(label, r, r.shift_pp === 0);
+      });
+      fill($("robust"),
+        h("thead", null, h("tr", null, h("th", null, "Munim with"), h("th", null, "Right calls"), h("th", null, "Losing offers kept"),
+          h("th", null, "Profit per campaign"))),
+        h("tbody", null, shifted, row("The shop’s own numbers (no pooling)", RB.shop_only, false)));
+      var wins = RB.seed_spread.filter(function (r) { return r.pooled.net_per_campaign_paise > r.shop_only.net_per_campaign_paise; }).length;
+      $("robust-note").textContent = "Pooling also won on " + wins + " of " + RB.seed_spread.length +
+        " further random seeds. So the pooled rate must come from recent, comparable history and be shaded upward when unsure. " +
+        "In the independent judge review\u2019s stress test, a rate built from the shop\u2019s own past months did better still (\u20b923.03 per campaign against \u20b99.77 for its comparison group alone) as long as nothing had changed; " +
+        "a festival fortnight, with return rates 6 points above history, pushed every method into a loss. " +
+        "Reproduce with python3 scripts/eval_robustness.py and python3 scripts/stress_test.py.";
+    }
     var cfg = E.config;
     $("eval-setup").textContent = "Simulation set-up: " + E.trials.toLocaleString("en-IN") + " campaigns of " + cfg.campaign_size +
       ", " + inr(cfg.reward_paise) + " cashback on a typical " + inr(cfg.basket_paise) + " bill at " + pct(cfg.gross_margin_bps) +
