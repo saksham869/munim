@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Munim: the CFO for every merchant’s AI growth agent</title>
+<meta name="description" content="Munim checks every cashback offer an AI growth agent proposes against the shop owner’s own rules before money moves, measures whether it paid, and stops what doesn’t. Live demo on a synthetic kirana.">
+<meta property="og:title" content="Munim: the CFO for every merchant’s AI growth agent">
+<meta property="og:description" content="The growth agent proposes. Munim decides, measures, and reports to the shop owner in Hinglish.">
+<meta name="theme-color" content="#8C1C2B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%238C1C2B'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='40' font-weight='700' text-anchor='middle' fill='white'%3EM%3C/text%3E%3C/svg%3E">
+<style>
+/* Fonts: Martel and Hind (SIL Open Font License, see fonts/), self-hosted so the page needs nothing external. */
+@font-face{font-family:"Martel";font-weight:800;font-display:swap;src:url(fonts/martel-latin-800-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Martel";font-weight:800;font-display:swap;src:url(fonts/martel-latin-ext-800-normal.woff2) format("woff2");unicode-range:U+20B9}
+@font-face{font-family:"Martel";font-weight:800;font-display:swap;src:url(fonts/martel-devanagari-800-normal.woff2) format("woff2");unicode-range:U+0900-097F,U+200C-200D,U+25CC}
+@font-face{font-family:"Martel";font-weight:900;font-display:swap;src:url(fonts/martel-latin-900-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:"Hind";font-weight:400;font-display:swap;src:url(fonts/hind-latin-400-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Hind";font-weight:500;font-display:swap;src:url(fonts/hind-latin-500-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Hind";font-weight:600;font-display:swap;src:url(fonts/hind-latin-600-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Hind";font-weight:700;font-display:swap;src:url(fonts/hind-latin-700-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Hind";font-weight:400;font-display:swap;src:url(fonts/hind-latin-ext-400-normal.woff2) format("woff2");unicode-range:U+20B9}
+@font-face{font-family:"Hind";font-weight:500;font-display:swap;src:url(fonts/hind-latin-ext-500-normal.woff2) format("woff2");unicode-range:U+20B9}
+@font-face{font-family:"Hind";font-weight:600;font-display:swap;src:url(fonts/hind-latin-ext-600-normal.woff2) format("woff2");unicode-range:U+20B9}
+@font-face{font-family:"Hind";font-weight:700;font-display:swap;src:url(fonts/hind-latin-ext-700-normal.woff2) format("woff2");unicode-range:U+20B9}
+
+:root{
+  --ink:#1B1B1F; --ink-2:#47433F; --ink-3:#6A655F;
+  --line:#E3DFD7; --line-2:#CDC7BC;
+  --bg:#FFFFFF; --bg-2:#F3F2EF;
+  --maroon:#8C1C2B; --maroon-dk:#6C1320; --maroon-wash:#F8EEEF;
+  --haldi:#E3A72F; --haldi-wash:#FBEBC6;
+  --allow:#1F7A4D; --gate:#B7791F; --gate-ink:#82540E; --deny:#B42318; --stop:#3A3A42;
+  --margin-rule:#E7A2A9;
+  --bar-muted:#AAA39A; --bar-faint:#D6D0C6;
+  --serif:"Martel",Georgia,"Times New Roman",serif;
+  --sans:"Hind",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --wrap:1160px;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--sans);text-rendering:optimizeLegibility}
+img,svg{max-width:100%}
+a{color:var(--maroon);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:var(--maroon-dk)}
+:focus-visible{outline:3px solid var(--haldi);outline-offset:2px;border-radius:3px}
+code{font-family:var(--mono);font-size:.86em;background:var(--bg-2);padding:.1em .35em;border-radius:3px;overflow-wrap:anywhere}
+h1,h2,h3{font-family:var(--serif);font-weight:800;color:var(--ink);margin:0;letter-spacing:-.005em;text-wrap:balance}
+h1{font-size:clamp(34px,4.4vw,54px);line-height:1.12}
+h2{font-size:clamp(28px,3vw,38px);line-height:1.2}
+h3{font-size:22px;line-height:1.3}
+p{margin:0;text-wrap:pretty}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+.skip{position:absolute;left:-9999px;top:8px;background:var(--ink);color:#fff;padding:8px 12px;z-index:50}
+.skip:focus{left:8px}
+.visually-hidden{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 15.5px/1.2 var(--sans);padding:11px 18px 9px;border-radius:6px;border:1.5px solid transparent;text-decoration:none;cursor:pointer;background:none;color:inherit;white-space:nowrap}
+.btn-primary{background:var(--maroon);color:#fff;border-color:var(--maroon)}
+.btn-primary:hover{background:var(--maroon-dk);border-color:var(--maroon-dk);color:#fff}
+.btn-secondary{background:#fff;color:var(--maroon);border-color:var(--maroon)}
+.btn-secondary:hover{background:var(--maroon-wash);color:var(--maroon-dk)}
+.btn-quiet{padding:8px 10px 6px;color:var(--ink-2)}
+.btn-quiet:hover{color:var(--maroon);background:var(--bg-2)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* Header */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);border-bottom:1px solid var(--line);backdrop-filter:saturate(1.2) blur(6px)}
+.top-in{display:flex;align-items:center;gap:28px;height:62px}
+.brand{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--maroon)}
+.brand-latin{font:900 24px/1 var(--serif);letter-spacing:-.01em;padding-top:6px}
+.brand-deva{font:800 19px/1 var(--serif);color:var(--ink-3)}
+.nav{display:flex;gap:4px;margin-left:8px}
+.nav a{font-weight:500;font-size:15.5px;color:var(--ink-2);text-decoration:none;padding:8px 10px 6px;border-radius:5px}
+.nav a:hover{color:var(--maroon);background:var(--bg-2)}
+.top-links{margin-left:auto;display:flex;gap:4px}
+
+/* Hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:56px;align-items:center;padding-top:64px;padding-bottom:72px}
+.hero h1{max-width:13.5em}
+.lede{font-size:19px;line-height:1.6;color:var(--ink-2);margin-top:22px;max-width:36em}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.fine{font-size:14px;color:var(--ink-3);margin-top:18px}
+
+/* The slip: a page from Munim’s register, with the red double margin rule of an Indian account book. */
+.slip{position:relative;background:#fff;border:1px solid var(--line-2);border-radius:3px;padding:24px 26px 24px 64px;
+  box-shadow:0 1px 0 var(--line),0 18px 36px -24px rgba(40,24,12,.35);
+  background-image:linear-gradient(to right,transparent 38px,var(--margin-rule) 38px,var(--margin-rule) 39px,transparent 39px,transparent 42px,var(--margin-rule) 42px,var(--margin-rule) 43px,transparent 43px)}
+.slip-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px 24px;align-items:start}
+.slip-kicker{font-size:14.5px;color:var(--ink-3);font-weight:500}
+.slip-offer{font:800 clamp(22px,2.3vw,28px)/1.25 var(--serif);margin-top:6px;text-wrap:balance}
+.slip-who{color:var(--ink-2);margin-top:8px;max-width:30em}
+.slip-msg{font-size:15px;color:var(--ink-3);margin-top:10px;max-width:34em}
+.slip-msg q{font-style:italic;color:var(--ink-2)}
+.slip-why{margin:14px 0 0;padding:0 0 0 14px;border-left:3px solid var(--line-2);font-size:15.5px;color:var(--ink-2);max-width:34em}
+.slip-why b{font-weight:600;color:var(--ink)}
+.stamp-col{display:flex;flex-direction:column;align-items:center;gap:10px;padding:6px 6px 0;min-width:150px}
+.stamp-line{font-size:14.5px;line-height:1.4;color:var(--ink-2);text-align:center;max-width:13em}
+
+/* The rubber stamp: the one loud thing on the page. */
+.stamp{--ink-c:var(--deny);display:inline-block;color:var(--ink-c);font:900 32px/1 var(--serif);letter-spacing:.09em;padding:14px 16px 6px 20px;
+  border:6px double currentColor;border-radius:9px;transform:rotate(-7deg);opacity:.93;mix-blend-mode:multiply;user-select:none;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -0.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3.2 0 0 0 -0.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.stamp.s-allow{--ink-c:var(--allow)} .stamp.s-gate{--ink-c:#A26810} .stamp.s-deny{--ink-c:var(--deny)}
+.stamp.landed{animation:thunk .3s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes thunk{0%{transform:rotate(-7deg) scale(1.75);opacity:0}65%{transform:rotate(-7deg) scale(.95);opacity:.95}100%{transform:rotate(-7deg) scale(1);opacity:.93}}
+
+/* Small decision and verdict chips (text plus colour, never colour alone). */
+.chip{display:inline-block;font:700 12.5px/1 var(--sans);letter-spacing:.06em;padding:5px 7px 3px;border:1.5px solid currentColor;border-radius:4px;white-space:nowrap}
+.c-allow,.c-worked,.c-live{color:var(--allow)} .c-gate,.c-uncertain{color:var(--gate-ink)} .c-deny{color:var(--deny)} .c-stop{color:var(--stop)}
+
+.why-list{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.why-list li{font-size:14.5px;line-height:1.3;padding:6px 10px 4px;border-radius:4px;background:#FBEDEB;color:#7A1A12}
+.fix{margin-top:18px;font-size:16px;color:var(--ink)}
+.fix mark{background:linear-gradient(transparent 12%,var(--haldi-wash) 12%,var(--haldi-wash) 92%,transparent 92%);color:inherit;padding:0 2px}
+
+/* Sections */
+.section{padding-top:88px;padding-bottom:88px}
+.band{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.band>.wrap{padding-top:80px;padding-bottom:84px}
+.intro{font-size:18px;color:var(--ink-2);margin-top:14px;max-width:44em}
+.intro code{white-space:nowrap}
+.note{font-size:15px;color:var(--ink-3);margin-top:14px;max-width:46em}
+
+/* Problem: one bill */
+.problem-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:56px;margin-top:40px;align-items:start}
+.bill{background:#fff;border:1px solid var(--line);border-radius:6px;padding:26px 26px 22px}
+.bill-row{margin-bottom:18px}
+.bill-label{font-size:15px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.bill-track{position:relative;height:42px;display:flex}
+.seg{display:flex;align-items:center;justify-content:center;font:600 15px/1 var(--sans);height:100%;white-space:nowrap;overflow:visible}
+.seg.cost{background:#E7E2D9;color:var(--ink-2);border-radius:4px 0 0 4px}
+.seg.margin{background:var(--allow);color:#fff;border-left:2px solid #fff;border-radius:0 4px 4px 0}
+.seg.gap{background:transparent}
+.seg.cashback{background:var(--deny);color:#fff;border-radius:4px}
+.bill-brackets{position:relative;height:56px;margin-top:6px}
+.bracket{position:absolute;top:0;border-top:2px solid var(--ink);padding-top:6px;font-size:14.5px;line-height:1.3;color:var(--ink);text-align:center}
+.bracket::before,.bracket::after{content:"";position:absolute;top:-8px;width:2px;height:8px;background:var(--ink)}
+.bracket::before{left:0}.bracket::after{right:0}
+.bracket.loss{border-color:var(--deny)} .bracket.loss::before,.bracket.loss::after{background:var(--deny)}
+.bracket strong{font-weight:700}
+.bill-foot{font-size:14.5px;color:var(--ink-3);margin-top:4px}
+.points{list-style:none;margin:0;padding:0}
+.points li{padding:0 0 22px 0;margin:0 0 22px 0;border-bottom:1px solid var(--line)}
+.points li:last-child{border-bottom:0;margin-bottom:0;padding-bottom:0}
+.points strong{display:block;font:800 19px/1.35 var(--serif);margin-bottom:4px}
+.points span{color:var(--ink-2)}
+.kicker{margin-top:48px;font:800 clamp(22px,2.4vw,28px)/1.3 var(--serif);color:var(--maroon);max-width:30em}
+.kicker-sub{margin-top:8px;font-size:18px;color:var(--ink-2);max-width:40em}
+
+/* Replay */
+.replay{display:grid;grid-template-columns:300px minmax(0,1fr);gap:32px;margin-top:40px;align-items:start}
+.rail{list-style:none;margin:0;padding:0;position:sticky;top:84px}
+.rail button{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-left:3px solid var(--line);padding:9px 8px 7px 12px;font:inherit;font-size:15px;line-height:1.3;color:var(--ink-2);cursor:pointer}
+.rail button:hover{background:var(--bg-2);color:var(--ink)}
+.rail button[aria-current="step"]{border-left-color:var(--haldi);background:var(--haldi-wash);color:var(--ink);font-weight:600}
+.rail .day{font-size:13px;color:var(--ink-3);font-weight:500}
+.rail .chip{font-size:11px;padding:4px 5px 2px}
+.stage-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.stage-bar .pos{font-size:15px;color:var(--ink-3);margin:0 4px}
+.lang{display:inline-flex;margin-left:auto;border:1.5px solid var(--line-2);border-radius:6px;overflow:hidden}
+.lang button{font:500 14.5px/1 var(--sans);padding:8px 12px 6px;border:0;background:#fff;color:var(--ink-2);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.stage{min-height:560px}
+.stage-meta{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:15px;color:var(--ink-3)}
+.actor{display:inline-flex;align-items:center;gap:7px;font-weight:600;color:var(--ink-2)}
+.actor::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ink-3)}
+.a-merchant::before{background:var(--maroon)} .a-munim::before{background:var(--ink)} .a-agent::before{background:#6B5BB5} .a-auditor::before{background:var(--bar-muted)}
+.stage-title{margin-top:8px;max-width:28em}
+.stage-body{margin-top:22px}
+.stage .stage-body>*+*{margin-top:22px}
+
+/* Reasons */
+.reasons{list-style:none;margin:0;padding:0;max-width:52em}
+.reason{display:grid;grid-template-columns:92px minmax(0,1fr);gap:14px;padding:11px 0 9px;border-top:1px solid var(--line)}
+.reason:last-child{border-bottom:1px solid var(--line)}
+.reason .tag{font:700 13px/1.5 var(--sans);padding-top:2px}
+.r-deny .tag{color:var(--deny)} .r-gate .tag{color:var(--gate-ink)} .r-note .tag{color:var(--ink-3)}
+.reason p{font-size:16px;line-height:1.55}
+.reason p[lang]{font-style:normal}
+
+/* Numbers */
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:0}
+.nums>div{background:#fff;padding:12px 14px 10px}
+.nums dt{font-size:13.5px;line-height:1.35;color:var(--ink-3)}
+.nums dd{margin:4px 0 0;font:600 20px/1.2 var(--sans)}
+
+/* Soundbox */
+.soundbox{display:grid;grid-template-columns:44px minmax(0,1fr);gap:14px;align-items:start;background:var(--ink);color:#fff;border-radius:10px;padding:16px 20px 14px 16px;max-width:52em}
+.sb-icon{width:44px;height:44px;border-radius:50%;background:#2E2E35;display:grid;place-items:center}
+.sb-hi{font-size:17.5px;line-height:1.5;font-weight:500}
+.sb-en{font-size:15px;line-height:1.5;color:#C9C6C0;margin-top:4px}
+.sb-cap{font-size:12.5px;color:#9C988F;font-weight:600;margin-bottom:2px}
+
+/* Stage parts */
+.voice-line{font:800 clamp(19px,2vw,23px)/1.45 var(--serif);max-width:30em}
+.voice-by{font-size:14.5px;color:var(--ink-3);margin-top:6px}
+.rules{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;margin:0;max-width:52em}
+.rules>div{display:flex;justify-content:space-between;gap:12px;padding:10px 0 8px;border-bottom:1px solid var(--line);font-size:16px}
+.rules dt{color:var(--ink-2)} .rules dd{margin:0;font-weight:600;text-align:right}
+.rules .from-owner dd{color:var(--maroon)}
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:15.5px}
+th,td{text-align:left;padding:10px 12px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:600;color:var(--ink-3);font-size:14px;line-height:1.35}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--ink-3);font-size:13.5px;line-height:1.4}
+.seg-name{font-weight:600}
+.steps-ol{margin:0;padding:0 0 0 1.4em;max-width:46em}
+.steps-ol li{padding-left:6px;margin-bottom:12px}
+.steps-ol li::marker{font-weight:700;color:var(--ink-3)}
+.passport{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0 24px;margin:12px 0 0;padding:14px 18px 10px;border:1.5px dashed var(--line-2);border-radius:8px;background:#fff;max-width:46em}
+.passport>div{padding:6px 0;border-bottom:1px solid var(--line)}
+.passport dt{font-size:13px;color:var(--ink-3)} .passport dd{margin:2px 0 0;font-weight:600;font-size:15.5px;overflow-wrap:anywhere}
+.passport code{background:none;padding:0;font-size:14px}
+
+.mini-bars{display:grid;gap:12px;max-width:40em}
+.mbar-label{font-size:15px;color:var(--ink-2);margin-bottom:4px}
+.mbar-label b{color:var(--ink);font-weight:600}
+.mbar-track{display:flex;align-items:center;gap:10px}
+.mbar{height:22px;border-radius:0 4px 4px 0;min-width:2px}
+.mbar.treated{background:var(--maroon)} .mbar.held{background:var(--bar-muted)}
+.mbar-val{font:600 15px/1 var(--sans);white-space:nowrap}
+.verdicts{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:52em}
+.verdict-box{border:1px solid var(--line);border-radius:8px;padding:14px 16px 12px;background:#fff}
+.verdict-box.ours{border:2px solid var(--maroon)}
+.verdict-box h4{margin:0 0 8px;font:600 15px/1.35 var(--sans);color:var(--ink-2)}
+.verdict-box p{font-size:15.5px;margin-top:8px}
+.truth{border-left:4px solid var(--haldi);padding:8px 0 6px 14px;max-width:46em}
+.truth b{font-weight:600}
+
+.chain{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:6px;list-style:none;margin:0;padding:0;max-width:52em}
+.chain li{border:1.5px solid var(--line-2);border-radius:5px;padding:7px 8px 5px;font-size:12.5px;line-height:1.3;background:#fff}
+.chain li b{display:block;font-size:12px;color:var(--ink-3);font-weight:500}
+.chain li.ok{border-color:#BFD9CB}
+.chain li.edited{border-color:var(--deny);background:#FBEDEB}
+.chain li.broken{border-color:#E7A39C;border-style:dashed;color:var(--ink-3)}
+.verify{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.verify-status{font-weight:600}
+.verify-status.ok{color:var(--allow)} .verify-status.bad{color:var(--deny)}
+
+/* Sandbox */
+.sandbox{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:32px;margin-top:36px;align-items:start}
+.controls{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px 22px 22px}
+.presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.preset{font:500 14.5px/1.25 var(--sans);padding:8px 11px 6px;border:1.5px solid var(--line-2);border-radius:6px;background:#fff;color:var(--ink);cursor:pointer;text-align:left}
+.preset:hover{border-color:var(--maroon);color:var(--maroon)}
+.ctl-group{border:0;margin:18px 0 0;padding:16px 0 0;border-top:1px solid var(--line)}
+.ctl-group legend{font:800 17px/1.3 var(--serif);padding:0;margin-bottom:4px;float:left;width:100%}
+.ctl-group legend+*{clear:both}
+.ctl-hint{font-size:14px;color:var(--ink-3);margin:0 0 8px}
+.segs{display:grid;gap:6px;margin-top:6px}
+.segs label{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;align-items:center;padding:8px 10px 6px;border:1.5px solid var(--line);border-radius:6px;cursor:pointer;font-size:15px;line-height:1.3}
+.segs label:has(input:checked){border-color:var(--maroon);background:var(--maroon-wash)}
+.segs input{accent-color:var(--maroon);margin:0}
+.segs .size{font-size:13.5px;color:var(--ink-3);white-space:nowrap}
+.ctl{margin-top:14px}
+.ctl-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.ctl label{font-size:15px;font-weight:500;color:var(--ink-2)}
+.ctl output{font:600 17px/1 var(--sans);font-variant-numeric:tabular-nums;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--maroon);margin:8px 0 0;height:22px}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px;width:100%;padding:10px 12px 8px;border:1.5px solid var(--line-2);border-radius:6px;background:#fff;font:500 15px/1.3 var(--sans);color:var(--ink);cursor:pointer;text-align:left}
+.toggle .pill{flex:none;width:40px;height:22px;border-radius:11px;background:var(--line-2);position:relative;transition:background .15s}
+.toggle .pill::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s}
+.toggle[aria-pressed="true"]{border-color:var(--gate);background:#FDF6E8}
+.toggle[aria-pressed="true"] .pill{background:var(--gate)}
+.toggle[aria-pressed="true"] .pill::after{transform:translateX(18px)}
+.verdict-col{position:sticky;top:84px}
+.verdict-col .slip{padding-bottom:22px}
+.sb-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px}
+.agent-note{font-size:15px;color:var(--ink-2);margin-top:12px;max-width:40em}
+.agent-note b{font-weight:600}
+.parity{font-size:14px;color:var(--ink-3);margin-top:14px}
+
+/* Proof */
+.proof-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px;margin-top:40px;align-items:start}
+.chart-fig{margin:0}
+.chart-fig figcaption{font-size:15.5px;color:var(--ink-2);margin-bottom:14px}
+.chart-fig figcaption b{display:block;font:800 19px/1.35 var(--serif);color:var(--ink);margin-bottom:2px}
+.hbars{display:grid;gap:4px}
+.hbar{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:14px;align-items:center;padding:6px 0;border-radius:4px}
+.hbar:hover,.hbar:focus-within{background:var(--bg-2)}
+.hbar-name{font-size:15px;line-height:1.3;color:var(--ink-2)}
+.hbar-name b{font-weight:600;color:var(--ink)}
+.hbar-plot{position:relative;height:30px}
+.hbar-zero{position:absolute;top:-4px;bottom:-4px;width:1px;background:var(--line-2)}
+.hbar-fill{position:absolute;top:5px;height:20px;background:var(--bar-muted)}
+.hbar-fill.pos{border-radius:0 4px 4px 0}
+.hbar-fill.neg{border-radius:4px 0 0 4px}
+.hbar-fill.ours{background:var(--maroon)}
+.hbar-fill.ref{background:var(--bar-faint)}
+.hbar-val{position:absolute;top:50%;transform:translateY(-45%);font:600 15px/1 var(--sans);white-space:nowrap;color:var(--ink)}
+.cmp th:not(:first-child),.cmp td:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cmp td.better{font-weight:700}
+.cases{margin-top:16px}
+.cases th:not(:first-child),.cases td:not(:first-child){white-space:normal;text-align:left}
+.subhead{font:800 21px/1.3 var(--serif);margin-top:56px}
+
+/* Build */
+.diagram{margin-top:36px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:18px}
+.diagram svg{display:block;width:100%;height:auto}
+.flow-list{display:none}
+.guarantees{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px 36px;margin:44px 0 0;padding:0;list-style:none}
+.guarantees strong{display:block;font:800 18px/1.35 var(--serif);margin-bottom:6px}
+.guarantees span{color:var(--ink-2);font-size:16px}
+.stack{margin-top:40px;padding-top:28px;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px 48px}
+.stack h3{font-size:19px;margin-bottom:8px}
+.stack p,.stack li{color:var(--ink-2);font-size:16px}
+.stack ul{margin:0;padding-left:1.1em}
+.stack li{margin-bottom:6px}
+
+/* Limits */
+.limits{margin:28px 0 0;padding:0 0 0 1.2em;max-width:50em}
+.limits li{margin-bottom:12px;color:var(--ink-2)}
+.limits b{color:var(--ink);font-weight:600}
+
+/* Footer */
+.foot{background:var(--ink);color:#E6E3DD}
+.foot .wrap{padding-top:56px;padding-bottom:48px}
+.foot h2{color:#fff;font-size:26px}
+.foot pre{margin:18px 0 0;background:#2A2A31;border-radius:8px;padding:18px 20px;overflow-x:auto;font:14px/1.7 var(--mono);color:#F1EEE8}
+.foot pre code{background:none;padding:0;color:inherit;font-size:inherit}
+.foot pre .c{color:#9E9A92}
+.foot-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.foot .btn-secondary{background:transparent;color:#fff;border-color:#fff}
+.foot .btn-secondary:hover{background:rgba(255,255,255,.1);color:#fff}
+.foot .btn-primary{background:#fff;color:var(--ink);border-color:#fff}
+.foot .btn-primary:hover{background:#ECE8E1;color:var(--ink)}
+.credit{margin-top:34px;font-size:15px;color:#BDB9B1;max-width:52em}
+.credit a{color:#fff}
+
+.no-js-msg,.data-error{background:#FBEDEB;color:#7A1A12;padding:12px 16px;border-radius:6px;margin-top:16px}
+
+@media (max-width:1000px){
+  .nav{display:none}
+  .hero{grid-template-columns:1fr;gap:40px;padding-top:44px;padding-bottom:56px}
+  .problem-grid,.proof-grid{grid-template-columns:1fr;gap:36px}
+  .replay{grid-template-columns:1fr;gap:20px}
+  .rail{position:static;display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scroll-snap-type:x proximity}
+  .rail li{flex:none;scroll-snap-align:start}
+  .rail button{grid-template-columns:auto;gap:2px;width:178px;height:100%;border-left:0;border-top:3px solid var(--line);padding:8px 10px 6px;align-content:start;background:#fff;border-radius:0 0 5px 5px}
+  .rail button[aria-current="step"]{border-top-color:var(--haldi);border-left:0}
+  .rail .chip{justify-self:start}
+  .stage{min-height:0}
+  .sandbox{grid-template-columns:1fr}
+  .verdict-col{position:static}
+  .guarantees{grid-template-columns:1fr 1fr}
+  .diagram{display:none}
+  .flow-list{display:block}
+}
+@media (max-width:640px){
+  body{font-size:16.5px}
+  .wrap{padding:0 16px}
+  .top-in{gap:12px;height:56px}
+  .brand-deva{display:none}
+  .top-links .btn-quiet{padding:8px 6px 6px;font-size:14.5px}
+  .lede{font-size:17.5px}
+  .slip{padding:20px 16px 20px 46px;background-image:linear-gradient(to right,transparent 24px,var(--margin-rule) 24px,var(--margin-rule) 25px,transparent 25px,transparent 28px,var(--margin-rule) 28px,var(--margin-rule) 29px,transparent 29px)}
+  .slip-head{grid-template-columns:1fr}
+  .stamp-col{align-items:flex-start;padding:4px 0 0;min-width:0;flex-direction:row;gap:16px}
+  .stamp-line{text-align:left}
+  .stamp{font-size:27px}
+  .section{padding-top:64px;padding-bottom:64px}
+  .band>.wrap{padding-top:60px;padding-bottom:64px}
+  .rules{grid-template-columns:1fr}
+  .verdicts{grid-template-columns:1fr}
+  .guarantees,.stack{grid-template-columns:1fr}
+  .reason{grid-template-columns:1fr;gap:2px}
+  .nums{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hbar{grid-template-columns:1fr;gap:4px}
+  .soundbox{grid-template-columns:1fr;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .stamp.landed{animation:none}
+  .toggle .pill,.toggle .pill::after{transition:none}
+}
+@media print{.top,.stage-bar,.sb-actions{display:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#replay">Skip to the replay</a>
+
+<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="#top" aria-label="Munim, home"><span class="brand-latin">Munim</span><span class="brand-deva" lang="hi">मुनीम</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#problem">The problem</a>
+      <a href="#replay">Replay</a>
+      <a href="#try">Try it</a>
+      <a href="#proof">Proof</a>
+      <a href="#build">How it’s built</a>
+    </nav>
+    <div class="top-links">
+      <a class="btn btn-quiet" href="Munim_Pitch.pdf">Pitch deck</a>
+      <a class="btn btn-quiet" href="https://github.com/saksham869/munim">Code</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero wrap" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <h1 id="hero-title">The CFO for every merchant’s AI growth agent</h1>
+      <p class="lede">AI agents are starting to run cashback offers for small shops. Munim checks every offer against the shop owner’s own rules before a rupee moves, keeps a comparison group so the result can be measured, and stops offers that don’t pay. The owner hears every decision on the Soundbox, in Hinglish.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#replay">Watch the three-week replay</a>
+        <a class="btn btn-secondary" href="#try">Try to make it overspend</a>
+      </div>
+      <p class="fine">Synthetic shop, real engine output. A hackathon prototype, not a Paytm product.</p>
+    </div>
+    <figure class="hero-fig" style="margin:0">
+      <div class="slip" id="hero-slip"></div>
+      <figcaption class="visually-hidden">The growth agent’s first proposal for Sharma General Store, and Munim’s decision.</figcaption>
+    </figure>
+  </section>
+
+  <section id="problem" class="band" aria-labelledby="problem-title">
+    <div class="wrap">
+      <h2 id="problem-title">One bill shows the problem</h2>
+      <p class="intro" id="problem-intro">The growth agent’s first idea for Sharma General Store looks generous. Here is what it does to a single bill.</p>
+      <div class="problem-grid">
+        <div class="bill" id="bill" role="img"></div>
+        <ul class="points" id="points"></ul>
+      </div>
+      <p class="kicker">Guardrails stop bad prompts. Munim stops bad spending.</p>
+      <p class="kicker-sub">None of these three is a bad prompt. They are arithmetic, so Munim does the arithmetic before any money moves.</p>
+    </div>
+  </section>
+
+  <section id="replay" class="wrap section" aria-labelledby="replay-title">
+    <h2 id="replay-title">Three weeks at a kirana, replayed</h2>
+    <p class="intro">Sharma General Store is a synthetic shop in Ghaziabad with 650 customers and six months of payments. Every decision, number and Soundbox line below is the engine’s own output from <code>python3 scripts/demo.py</code>. Use the arrow keys or the buttons.</p>
+    <noscript><p class="no-js-msg">The replay needs JavaScript. The raw run is in <a href="data/scenario.json">data/scenario.json</a>.</p></noscript>
+    <div class="replay">
+      <ol class="rail" id="rail" aria-label="Steps"></ol>
+      <div>
+        <div class="stage-bar">
+          <button class="btn btn-secondary" id="prev" type="button">Back</button>
+          <button class="btn btn-primary" id="next" type="button">Next</button>
+          <span class="pos" id="pos" aria-live="polite"></span>
+          <div class="lang" role="group" aria-label="Language for reasons">
+            <button type="button" data-lang="en" aria-pressed="true">English</button>
+            <button type="button" data-lang="hi" aria-pressed="false">Hinglish</button>
+          </div>
+        </div>
+        <article class="stage" id="stage" tabindex="-1"></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="try" class="band" aria-labelledby="try-title">
+    <div class="wrap">
+      <h2 id="try-title">Try to make Munim overspend</h2>
+      <p class="intro">You are the growth agent now. Pick customers, set the cashback, and see what Munim says. The rules run in your browser, and the test suite checks this copy against the Python engine on 1,500 random cases.</p>
+      <div class="sandbox">
+        <form class="controls" id="controls" onsubmit="return false">
+          <p class="ctl-hint">Start from one of these, then change anything.</p>
+          <div class="presets" id="presets" role="group" aria-label="Start from"></div>
+          <fieldset class="ctl-group">
+            <legend>Who gets the offer</legend>
+            <div class="segs" id="segs"></div>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-count">Customers targeted</label><output id="out-count" for="in-count"></output></div>
+              <input type="range" id="in-count" min="1" max="48" step="1">
+            </div>
+          </fieldset>
+          <fieldset class="ctl-group">
+            <legend>The offer</legend>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-reward">Cashback</label><output id="out-reward" for="in-reward"></output></div>
+              <input type="range" id="in-reward" min="1" max="100" step="1">
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-bill">On bills of at least</label><output id="out-bill" for="in-bill"></output></div>
+              <input type="range" id="in-bill" min="50" max="2000" step="10">
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-holdout">Held back to compare</label><output id="out-holdout" for="in-holdout"></output></div>
+              <input type="range" id="in-holdout" min="0" max="50" step="5">
+            </div>
+          </fieldset>
+          <fieldset class="ctl-group">
+            <legend>The owner’s rules</legend>
+            <p class="ctl-hint">Set once by the owner, by voice. The agent can read them but not change them.</p>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-budget">Weekly growth budget</label><output id="out-budget" for="in-budget"></output></div>
+              <input type="range" id="in-budget" min="0" max="2000" step="50">
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-keep">Margin to keep on every bill</label><output id="out-keep" for="in-keep"></output></div>
+              <input type="range" id="in-keep" min="0" max="12" step="1">
+            </div>
+            <div class="ctl">
+              <div class="ctl-top"><label for="in-ask">Ask the owner above</label><output id="out-ask" for="in-ask"></output></div>
+              <input type="range" id="in-ask" min="0" max="1000" step="50">
+            </div>
+            <button type="button" class="toggle" id="in-kill" aria-pressed="false"><span>Pause all automatic spending</span><span class="pill" aria-hidden="true"></span></button>
+          </fieldset>
+        </form>
+        <div class="verdict-col">
+          <div class="stage-bar" style="margin-bottom:12px">
+            <div class="lang" role="group" aria-label="Language for reasons">
+              <button type="button" data-lang="en" aria-pressed="true">English</button>
+              <button type="button" data-lang="hi" aria-pressed="false">Hinglish</button>
+            </div>
+          </div>
+          <div class="slip" id="sb-slip"></div>
+          <p class="visually-hidden" id="sb-live" aria-live="polite"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="proof" class="wrap section" aria-labelledby="proof-title">
+    <h2 id="proof-title">Measuring across many shops beats measuring one</h2>
+    <p class="intro">One kirana’s campaign reaches 20 to 60 customers, so its own numbers are noisy. Munim starts from a return rate pooled across similar shops and updates it with this shop’s data. We tested both ways on 1,000 simulated campaigns where the true effect is known.</p>
+    <div class="proof-grid">
+      <figure class="chart-fig">
+        <figcaption><b>Average profit per campaign</b>after keeping or stopping each offer based on what the shop could see</figcaption>
+        <div class="hbars" id="netbars"></div>
+      </figure>
+      <div>
+        <div class="tbl-scroll">
+          <table class="cmp" id="rates"></table>
+        </div>
+        <p class="note" id="rates-note"></p>
+      </div>
+    </div>
+    <h3 class="subhead">The two offers from the replay</h3>
+    <div class="tbl-scroll">
+      <table class="cmp cases" id="cases"></table>
+    </div>
+    <p class="note" id="eval-setup"></p>
+  </section>
+
+  <section id="build" class="band" aria-labelledby="build-title">
+    <div class="wrap">
+      <h2 id="build-title">How it’s built</h2>
+      <p class="intro">Munim sits between the growth agent and the offer rails. The agent can propose anything; only Munim can authorise spending, and only inside the owner’s rules.</p>
+
+      <div class="diagram" role="img" aria-labelledby="diagram-desc">
+        <p id="diagram-desc" class="visually-hidden">The growth agent sends a proposal to Munim. Munim refuses with the exact fix, asks the owner on the Soundbox, or issues a signed one-time passport to the offer rails, which send the offer to the treated customers. Their payments feed measurement, which tells Munim to keep or stop the offer and reports to the owner in Hinglish.</p>
+        <svg viewBox="0 0 1080 410" aria-hidden="true" focusable="false" font-family="Hind, system-ui, sans-serif">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1B1B1F"/></marker>
+            <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#B42318"/></marker>
+          </defs>
+          <!-- Growth agent (untrusted: dashed) -->
+          <rect x="16" y="30" width="210" height="104" rx="8" fill="#fff" stroke="#6A655F" stroke-width="1.5" stroke-dasharray="6 5"/>
+          <text x="34" y="62" font-family="Martel, Georgia, serif" font-weight="800" font-size="19" fill="#1B1B1F">Growth agent</text>
+          <text x="34" y="88" font-size="15" fill="#47433F">Paytm’s agent or any LLM</text>
+          <text x="34" y="110" font-size="15" fill="#47433F">Proposes. Can’t pay anyone.</text>
+
+          <!-- Munim -->
+          <rect x="300" y="16" width="420" height="250" rx="10" fill="#F8EEEF" stroke="#8C1C2B" stroke-width="2.5"/>
+          <text x="324" y="52" font-family="Martel, Georgia, serif" font-weight="800" font-size="22" fill="#8C1C2B">Munim</text>
+          <text x="696" y="52" font-size="15" fill="#47433F" text-anchor="end">deterministic, no model in the money path</text>
+          <g font-size="15.5" fill="#1B1B1F">
+            <rect x="324" y="70" width="372" height="32" rx="5" fill="#fff"/><text x="338" y="92">Trusted numbers, computed from payments</text>
+            <rect x="324" y="108" width="372" height="32" rx="5" fill="#fff"/><text x="338" y="130">Rules: ALLOW, GATE for the owner, or DENY + fix</text>
+            <rect x="324" y="146" width="372" height="32" rx="5" fill="#fff"/><text x="338" y="168">Comparison group picked by a keyed hash</text>
+            <rect x="324" y="184" width="372" height="32" rx="5" fill="#fff"/><text x="338" y="206">Budget reserved, one-time passport signed</text>
+            <rect x="324" y="222" width="372" height="32" rx="5" fill="#fff"/><text x="338" y="244">Every step on a hash-chained ledger</text>
+          </g>
+
+          <!-- Offer rails -->
+          <rect x="790" y="30" width="274" height="104" rx="8" fill="#fff" stroke="#1B1B1F" stroke-width="1.5"/>
+          <text x="808" y="62" font-family="Martel, Georgia, serif" font-weight="800" font-size="19" fill="#1B1B1F">Offer rails</text>
+          <text x="808" y="88" font-size="15" fill="#47433F">Paytm offers and cashback</text>
+          <text x="808" y="110" font-size="15" fill="#47433F">(a mock in this prototype)</text>
+
+          <!-- Customers -->
+          <rect x="790" y="180" width="274" height="74" rx="8" fill="#fff" stroke="#1B1B1F" stroke-width="1.5"/>
+          <text x="808" y="210" font-family="Martel, Georgia, serif" font-weight="800" font-size="17" fill="#1B1B1F">Customers</text>
+          <text x="808" y="236" font-size="15" fill="#47433F">offer, or held back to compare</text>
+
+          <!-- Measurement -->
+          <rect x="790" y="306" width="274" height="88" rx="8" fill="#fff" stroke="#1B1B1F" stroke-width="1.5"/>
+          <text x="808" y="336" font-family="Martel, Georgia, serif" font-weight="800" font-size="17" fill="#1B1B1F">Measurement</text>
+          <text x="808" y="360" font-size="15" fill="#47433F">offer vs held back, with a</text>
+          <text x="808" y="380" font-size="15" fill="#47433F">return rate pooled across shops</text>
+
+          <!-- Owner -->
+          <rect x="16" y="306" width="210" height="88" rx="8" fill="#1B1B1F"/>
+          <text x="34" y="338" font-family="Martel, Georgia, serif" font-weight="800" font-size="17" fill="#fff">Shop owner</text>
+          <text x="34" y="362" font-size="15" fill="#D8D4CD">on the Soundbox,</text>
+          <text x="34" y="382" font-size="15" fill="#D8D4CD">in Hinglish</text>
+
+          <!-- Arrows: agent <-> Munim -->
+          <path d="M226 66 H296" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="232" y="56" font-size="14" fill="#1B1B1F">proposal</text>
+          <path d="M300 112 H230" fill="none" stroke="#B42318" stroke-width="1.8" marker-end="url(#ahr)"/>
+          <text x="236" y="132" font-size="14" fill="#B42318">DENY + fix</text>
+
+          <!-- Munim -> rails -->
+          <path d="M720 66 H786" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="728" y="56" font-size="14" fill="#1B1B1F">passport</text>
+
+          <!-- rails -> customers -> measurement -->
+          <path d="M927 134 V176" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <path d="M927 254 V302" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="938" y="284" font-size="14" fill="#1B1B1F">payments</text>
+
+          <!-- measurement -> Munim -->
+          <path d="M790 350 H620 V270" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="634" y="342" font-size="14" fill="#1B1B1F">keep or stop</text>
+
+          <!-- owner <-> Munim -->
+          <path d="M226 334 H360 V270" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="238" y="324" font-size="14" fill="#1B1B1F">rules, OK, pause</text>
+          <path d="M440 266 V374 H230" fill="none" stroke="#1B1B1F" stroke-width="1.8" marker-end="url(#ah)"/>
+          <text x="254" y="394" font-size="14" fill="#1B1B1F">decisions and results</text>
+        </svg>
+      </div>
+
+      <ol class="flow-list steps-ol" style="margin-top:28px">
+        <li><b>The growth agent proposes</b> an offer: who gets it, how much cashback, on what bill. It cannot pay anyone.</li>
+        <li><b>Munim decides</b> using numbers it computed from the shop’s payments: ALLOW, GATE (the owner must say yes) or DENY with the exact fix.</li>
+        <li><b>The owner answers on the Soundbox</b> when an offer needs a yes, and can pause all spending with one sentence.</li>
+        <li><b>Munim reserves the budget and signs a one-time passport</b>; only then do the offer rails send the offer.</li>
+        <li><b>Measurement compares</b> customers who got the offer with those held back, using a return rate pooled across shops.</li>
+        <li><b>Munim keeps or stops the offer</b> and tells the owner what it earned, in Hinglish.</li>
+      </ol>
+
+      <ul class="guarantees">
+        <li><strong>No model in the money path</strong><span>The rules are plain arithmetic on whole paise. The same proposal gets the same answer every time.</span></li>
+        <li><strong>Fails closed</strong><span>If anything inside the engine breaks, the answer is DENY.</span></li>
+        <li><strong>The agent can’t bring its own numbers</strong><span>Return rates and basket sizes come from the shop’s payments, computed and backtested by Munim.</span></li>
+        <li><strong>Money moves only with a passport</strong><span>Signed, single use, tied to one offer, its customers and the current rules. It expires in an hour.</span></li>
+        <li><strong>Budget is reserved first</strong><span>The worst case is held before an offer goes live; unspent money returns after measurement.</span></li>
+        <li><strong>Quiet edits break the chain</strong><span>Every step is hash-chained. Change one past entry and verification fails from there on.</span></li>
+      </ul>
+
+      <div class="stack">
+        <div>
+          <h3>What’s in the repo</h3>
+          <ul>
+            <li>Python 3.9+ engine using only the standard library: rules, measurement, passports, ledger, budget.</li>
+            <li>FastAPI service for proposals, approvals, the kill switch and the ledger.</li>
+            <li id="tests-line">143 tests with pytest, including a check that this page’s rules match the Python engine.</li>
+            <li>Optional LLM proposer for any OpenAI-compatible model. Off by default; its output is parsed strictly and still has to pass the rules.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>How it would plug into Paytm</h3>
+          <ul>
+            <li>Proposals come from Paytm’s own growth agent; Munim needs no change to how it plans.</li>
+            <li>Segments and return rates come from the merchant’s payment history.</li>
+            <li>Approved offers go out through Paytm’s offers and cashback rails behind the same adapter the mock uses.</li>
+            <li>Decisions and results are spoken on the Soundbox the merchant already has.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="limits" class="wrap section" aria-labelledby="limits-title">
+    <h2 id="limits-title">What this prototype doesn’t do yet</h2>
+    <ul class="limits">
+      <li><b>The shop is synthetic.</b> 650 simulated customers with known behaviour, so the demo can show the truth next to Munim’s estimate.</li>
+      <li><b>The offer rails are a mock.</b> It behaves like a real API, including timeouts that Munim quarantines instead of retrying, but no money moves.</li>
+      <li><b>Pooled return rates come from 20 simulated shops.</b> In production they would come from Paytm’s merchant cohorts.</li>
+      <li><b>Small campaigns stay uncertain for a while.</b> Munim says "not sure yet, keep measuring" rather than guessing.</li>
+      <li><b>The owner’s voice rules are typed in the demo script.</b> Speech recognition on the Soundbox is out of scope here.</li>
+      <li><b>One merchant, one process.</b> The budget lock and the ledger live in memory.</li>
+    </ul>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <h2>Run it yourself</h2>
+    <pre><code><span class="c"># the engine needs only Python 3.9+</span>
+git clone https://github.com/saksham869/munim.git && cd munim
+python3 scripts/demo.py                  <span class="c"># the three-week story, step by step</span>
+pip install -r requirements-dev.txt
+python3 -m pytest                        <span class="c"># all tests</span>
+uvicorn munim.api:app --port 8090        <span class="c"># the HTTP API, docs at /docs</span></code></pre>
+    <div class="foot-links">
+      <a class="btn btn-primary" href="https://github.com/saksham869/munim">Code on GitHub</a>
+      <a class="btn btn-secondary" href="Munim_Pitch.pdf">Pitch deck (PDF)</a>
+    </div>
+    <p class="credit">Built by Satyam Mishra for the Paytm Build for India AI Hackathon, Delhi 2026, Track 1: Merchant Growth AI. Not affiliated with or endorsed by Paytm. All data on this page is synthetic and no money moves. Fonts: Martel and Hind, SIL Open Font License.</p>
+  </div>
+</footer>
+
+<script src="data/scenario.js"></script>
+<script src="data/eval.js"></script>
+<script src="rules.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var R = window.MunimRules, S = window.MUNIM_SCENARIO, E = window.MUNIM_EVAL;
+  if (!R || !S || !E) {
+    document.querySelectorAll("#replay .replay, #try .sandbox").forEach(function (el) {
+      el.replaceWith(Object.assign(document.createElement("p"), {
+        className: "data-error",
+        textContent: "The demo data did not load. Run python3 scripts/demo.py and python3 scripts/eval_measurement.py, then reload."
+      }));
+    });
+    return;
+  }
+
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var inr = function (p) { return R.fmtInr(p); };
+  var cap = function (p) { return R.fmtInr(p, { floor: true }); };
+  var inr2 = function (p) { return R.fmtInr(p, { decimals: true }).replace(/^-/, "−"); };
+  var pct = R.fmtPct, pp = R.fmtPp;
+  var share = function (x) { return Math.round(x * 100) + "%"; };
+  var rate = function (x) { return (Math.round(x * 1000) / 10).toFixed(1) + "%"; };
+  var lang = "en";
+  var typo = function (t) {
+    return String(t).replace(/(\w)'(\w)/g, "$1\u2019$2").replace(/(^|[\s(])'([^']+)'/g, "$1\u2018$2\u2019");
+  };
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === "class") el.className = v;
+      else if (k === "text") el.textContent = v;
+      else if (k.slice(0, 2) === "on") el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
+    });
+    for (var i = 2; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  }
+  function fill(el) {
+    el.replaceChildren();
+    for (var i = 1; i < arguments.length; i++) append(el, arguments[i]);
+    return el;
+  }
+  function append(el, kid) {
+    if (kid === null || kid === undefined || kid === false) return;
+    if (Array.isArray(kid)) { kid.forEach(function (k) { append(el, k); }); return; }
+    el.appendChild(kid instanceof Node ? kid : document.createTextNode(String(kid)));
+  }
+
+  var insight = S.steps.filter(function (s) { return s.kind === "insight"; })[0];
+  var SEG = {}, SEG_BY_KIND = {};
+  insight.segments.forEach(function (s) { SEG[s.segment_id] = s; SEG_BY_KIND[s.kind] = s; });
+  var POLICY = S.policy;
+
+  var SHORT = {
+    margin_floor: "Below the owner’s margin floor",
+    no_measurement: "No comparison group",
+    over_budget: "Over this week’s budget",
+    cannot_pay_back: "Can never pay back",
+    unrealistic_payback: "Pays back only on an unrealistic lift",
+    too_small_to_measure: "Too few customers to measure",
+    invalid_proposal: "Malformed proposal",
+    approval_required: "Above the owner’s auto-approve limit",
+    kill_switch: "Spending paused by the owner",
+    engine_error: "Engine error"
+  };
+  var TAG = { DENY: "Refuses", GATE: "Asks owner", NOTE: "Note" };
+  var VERDICT = {
+    WORKED: "It worked: keep it",
+    UNCERTAIN: "Not sure yet: keep running and measuring",
+    STOP: "Stop it"
+  };
+
+  function stamp(decision, animate) {
+    var s = h("div", { class: "stamp s-" + decision.toLowerCase(), role: "img", "aria-label": "Decision: " + decision }, decision);
+    if (animate && !REDUCE) requestAnimationFrame(function () { s.classList.add("landed"); });
+    return s;
+  }
+  function chip(word) { return h("span", { class: "chip c-" + word.toLowerCase() }, word); }
+
+  function plainLine(d) {
+    if (d.decision === "DENY") {
+      var codes = d.reasons.filter(function (r) { return r.effect === "DENY"; }).map(function (r) { return r.code; });
+      if (codes.indexOf("invalid_proposal") >= 0) return "Refused: the proposal itself is malformed.";
+      return "Refused, with the numbers that would pass.";
+    }
+    if (d.decision === "GATE") {
+      var gates = d.reasons.filter(function (r) { return r.effect === "GATE"; }).map(function (r) { return r.code; });
+      if (gates.length === 1 && gates[0] === "kill_switch") return "Inside the rules, but spending is paused. Waits for the owner.";
+      return "Inside the rules. Waits for the owner’s yes on the Soundbox.";
+    }
+    return "Allowed. Runs inside the owner’s rules and gets measured.";
+  }
+
+  function reasonsList(d) {
+    return h("ul", { class: "reasons" }, d.reasons.map(function (r) {
+      var text = lang === "hi" ? r.hi : r.en;
+      return h("li", { class: "reason r-" + r.effect.toLowerCase() },
+        h("span", { class: "tag" }, TAG[r.effect] || r.effect),
+        h("p", lang === "hi" ? { lang: "hi-Latn" } : null, typo(text)));
+    }));
+  }
+
+  function breakEven(n) {
+    if (!("break_even_lift_bps" in n)) return "—";
+    var be = n.break_even_lift_bps;
+    if (be === null || be > 10000 - n.baseline_return_bps) return "Never";
+    return "+" + pp(be);
+  }
+
+  function numbersGrid(d) {
+    var n = d.numbers;
+    if (!("eligible" in n)) return null;
+    var items = [
+      ["Eligible after consent and limits", String(n.eligible)],
+      ["Get the offer", String(n.treated)],
+      ["Held back to compare", String(n.holdout)],
+      ["Worst-case spend", inr(n.max_spend_paise)],
+      ["Return anyway in 14 days", pct(n.baseline_return_bps)],
+      ["Extra return needed to break even", breakEven(n)]
+    ];
+    return h("dl", { class: "nums" }, items.map(function (it) {
+      return h("div", null, h("dt", null, it[0]), h("dd", null, it[1]));
+    }));
+  }
+
+  function soundbox(sb) {
+    var icon = h("div", { class: "sb-icon", "aria-hidden": "true" });
+    icon.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19.5 5.5a9 9 0 0 1 0 13"/></svg>';
+    return h("div", { class: "soundbox" }, icon,
+      h("div", null,
+        h("p", { class: "sb-cap" }, "Soundbox"),
+        h("p", { class: "sb-hi", lang: "hi-Latn" }, typo(sb.hi)),
+        h("p", { class: "sb-en" }, typo(sb.en))));
+  }
+
+  function proposalHead(p, seg, d, animate, kicker) {
+    var held = p.holdout_pct === 0 ? "nobody held back to compare" : p.holdout_pct + "% held back to compare";
+    return h("div", { class: "slip-head" },
+      h("div", null,
+        h("p", { class: "slip-kicker" }, kicker),
+        h("p", { class: "slip-offer" }, inr(p.reward_paise) + " cashback on bills of " + inr(p.min_bill_paise) + "+"),
+        h("p", { class: "slip-who" }, p.customer_count + " customers from “" + seg.name + "”, " + held + ", for " + p.validity_days + " days.")),
+      h("div", { class: "stamp-col" }, stamp(d.decision, animate), h("p", { class: "stamp-line" }, plainLine(d))));
+  }
+
+  /* ------------------------------------------------------------------ hero */
+
+  var firstDeny = S.steps.filter(function (s) { return s.kind === "decision" && s.decision.decision === "DENY"; })[0];
+  (function renderHero() {
+    var p = firstDeny.proposal, d = firstDeny.decision, seg = SEG[p.segment_id], c = d.constraints;
+    var held = c.min_holdout_pct || POLICY.min_holdout_pct;
+    fill(document.getElementById("hero-slip"),
+      h("p", { class: "slip-kicker" }, "The growth agent proposes"),
+      h("p", { class: "slip-offer" }, inr(p.reward_paise) + " cashback on bills of " + inr(p.min_bill_paise) + "+"),
+      h("div", { class: "slip-head" },
+        h("p", { class: "slip-who" }, "For all " + p.customer_count + " " + seg.name.toLowerCase() + ", with nobody held back to compare."),
+        h("div", { class: "stamp-col" }, stamp(d.decision, true), h("p", { class: "stamp-line" }, "Refused, for four reasons"))),
+      h("ul", { class: "why-list", "aria-label": "Why" }, d.reasons.filter(function (r) { return r.effect === "DENY"; }).map(function (r) {
+        return h("li", null, SHORT[r.code] || r.code);
+      })),
+      c.suggested ? h("p", { class: "fix" }, "Munim’s counter-offer: ",
+        h("mark", null, cap(c.suggested.reward_paise) + " on bills of " + inr(c.suggested.min_bill_paise) + "+, " + held + "% held back"),
+        ". It goes to the owner for a yes.") : null
+    );
+  })();
+
+  /* --------------------------------------------------------------- problem */
+
+  (function renderProblem() {
+    var p = firstDeny.proposal, seg = SEG[p.segment_id];
+    var bill = p.min_bill_paise, margin = Math.floor(bill * POLICY.gross_margin_bps / 10000), reward = p.reward_paise;
+    var loss = reward - margin, cost = bill - margin;
+    var w = function (x) { return (100 * x / bill) + "%"; };
+    document.getElementById("problem-intro").textContent =
+      "The growth agent’s first idea for Sharma General Store: " + inr(reward) + " cashback on any bill over " + inr(bill) +
+      ", for every regular who stopped coming. It looks generous. Here is what it does to one bill.";
+    var el = document.getElementById("bill");
+    el.setAttribute("aria-label", "A " + inr(bill) + " bill earns the shop " + inr(margin) + ". The " + inr(reward) +
+      " cashback uses up that margin and loses " + inr(loss) + " more.");
+    fill(el,
+      h("div", { class: "bill-row" },
+        h("p", { class: "bill-label" }, "What a " + inr(bill) + " bill earns the shop (" + pct(POLICY.gross_margin_bps) + " margin)"),
+        h("div", { class: "bill-track" },
+          h("div", { class: "seg cost", style: "width:" + w(cost) }, "Cost of goods " + inr(cost)),
+          h("div", { class: "seg margin", style: "width:" + w(margin) }, inr(margin)))),
+      h("div", { class: "bill-row" },
+        h("p", { class: "bill-label" }, "What the agent gives back"),
+        h("div", { class: "bill-track" },
+          h("div", { class: "seg gap", style: "width:" + w(bill - reward) }),
+          h("div", { class: "seg cashback", style: "width:" + w(reward) }, "Cashback " + inr(reward)))),
+      h("div", { class: "bill-brackets", "aria-hidden": "true" },
+        h("div", { class: "bracket loss", style: "left:" + w(bill - reward) + ";width:" + w(loss) }, h("strong", null, inr(loss) + " lost"), h("br"), "on every bill"),
+        h("div", { class: "bracket", style: "left:" + w(cost) + ";width:" + w(margin) }, inr(margin), h("br"), "margin")),
+      h("p", { class: "bill-foot" }, "Bar lengths are to scale. Every number comes from the demo run.")
+    );
+    var back = Math.round(seg.baseline_return_bps / 100);
+    fill(document.getElementById("points"),
+      h("li", null, h("strong", null, "It gives away more than the bill earns."),
+        h("span", null, "A " + inr(bill) + " bill earns " + inr(margin) + ". Paying " + inr(reward) + " back loses " + inr(loss) + " every time the offer is used.")),
+      h("li", null, h("strong", null, "It pays people who were coming anyway."),
+        h("span", null, "About " + back + " in 100 of these regulars come back within two weeks with no offer at all. They get the cashback too, and it buys nothing.")),
+      h("li", null, h("strong", null, "Nobody can tell whether it worked."),
+        h("span", null, "With no one held back for comparison, a losing offer looks the same as a winning one, so it keeps running."))
+    );
+  })();
+
+  /* ---------------------------------------------------------------- replay */
+
+  var ACTOR = { merchant: "Shop owner", munim: "Munim", agent: "Growth agent", auditor: "Anyone checking" };
+  var steps = S.steps, current = 0, tampered = false;
+  var rail = document.getElementById("rail"), stage = document.getElementById("stage");
+
+  function railLabel(st) {
+    switch (st.kind) {
+      case "policy": return "Owner sets the rules";
+      case "insight": return "Munim reads the payments";
+      case "decision": return st.proposal.name + ", try " + st.proposal.attempt;
+      case "approval": return "Owner says haan";
+      case "outcome": return st.name + ": result";
+      case "kill": return "Owner pauses spending";
+      case "audit": return "Anyone checks the record";
+      default: return st.title;
+    }
+  }
+  function railChip(st) {
+    if (st.kind === "decision") return chip(st.decision.decision);
+    if (st.kind === "approval") return chip("LIVE");
+    if (st.kind === "outcome") return chip(st.result.verdict);
+    return null;
+  }
+
+  steps.forEach(function (st, i) {
+    rail.appendChild(h("li", null, h("button", { type: "button", "data-i": String(i), onclick: function () { go(i, true); } },
+      h("span", { class: "day" }, "Day " + st.day), h("span", null, railLabel(st)), railChip(st))));
+  });
+
+  function go(i, focusStage) {
+    current = Math.max(0, Math.min(steps.length - 1, i));
+    rail.querySelectorAll("button").forEach(function (b, j) {
+      if (j === current) { b.setAttribute("aria-current", "step"); }
+      else b.removeAttribute("aria-current");
+    });
+    var active = rail.querySelector('[aria-current="step"]');
+    if (active && rail.scrollWidth > rail.clientWidth) {
+      var li = active.parentNode;
+      rail.scrollTo({ left: li.offsetLeft - rail.offsetLeft - (rail.clientWidth - li.offsetWidth) / 2,
+                      behavior: REDUCE ? "auto" : "smooth" });
+    }
+    document.getElementById("pos").textContent = "Step " + (current + 1) + " of " + steps.length;
+    document.getElementById("prev").disabled = current === 0;
+    document.getElementById("next").disabled = current === steps.length - 1;
+    renderStage(true);
+    if (focusStage) stage.focus({ preventScroll: true });
+  }
+
+  function renderStage(animate) {
+    var st = steps[current];
+    fill(stage,
+      h("div", { class: "stage-meta" }, h("span", { class: "actor a-" + st.actor }, ACTOR[st.actor] || st.actor),
+        h("span", null, "Day " + st.day + ", " + st.date)),
+      h("h3", { class: "stage-title" }, typo(st.title)),
+      h("div", { class: "stage-body" }, BODY[st.kind] ? BODY[st.kind](st, animate) : null,
+        st.soundbox ? soundbox(st.soundbox) : null)
+    );
+  }
+
+  var BODY = {
+    policy: function (st) {
+      var p = st.policy;
+      var row = function (label, value, owner) {
+        return h("div", owner ? { class: "from-owner" } : null, h("dt", null, label), h("dd", null, value));
+      };
+      return [
+        h("div", null, h("p", { class: "voice-line", lang: "hi-Latn" }, "“" + typo(st.voice) + "”"),
+          h("p", { class: "voice-by" }, "The owner, speaking to the Soundbox. The first three rules come from these words; the rest are Munim’s defaults.")),
+        h("dl", { class: "rules" },
+          row("Weekly growth budget", inr(p.weekly_budget_paise), true),
+          row("Margin kept on every bill", pct(p.keep_margin_bps) + " of " + pct(p.gross_margin_bps), true),
+          row("Ask the owner above", inr(p.approval_threshold_paise), true),
+          row("Held back to compare", "at least " + p.min_holdout_pct + "%"),
+          row("Offers per customer", "at most " + p.max_offers_per_customer_30d + " in 30 days"),
+          row("Offer length", p.max_validity_days + " days")),
+        h("p", { class: "note" }, "This version of the rules has the fingerprint ", h("code", null, p.fingerprint), ". Every decision records the fingerprint it was made under.")
+      ];
+    },
+
+    insight: function (st) {
+      var m = st.merchant;
+      return [
+        h("p", null, m.name + ", " + m.city + ": " + m.customers + " customers, " + m.txns.toLocaleString("en-IN") +
+          " payments and an average bill of " + inr(m.avg_bill_paise) + " over six months."),
+        h("div", { class: "tbl-scroll" }, h("table", null,
+          h("thead", null, h("tr", null, h("th", null, "Group"), h("th", { class: "num" }, "Customers"),
+            h("th", { class: "num" }, "Come back in 14 days anyway"), h("th", { class: "num" }, "Average bill"))),
+          h("tbody", null, st.segments.map(function (s) {
+            return h("tr", null,
+              h("td", null, h("span", { class: "seg-name" }, s.name), h("small", null, s.description)),
+              h("td", { class: "num" }, String(s.size)),
+              h("td", { class: "num" }, pct(s.baseline_return_bps), h("small", null, s.backtest_returned + " of " + s.backtest_members + " in past weeks")),
+              h("td", { class: "num" }, inr(s.avg_basket_paise)));
+          })))),
+        h("p", { class: "note" }, "The agent never supplies these numbers. Munim computes them from the payments and checks each return rate against earlier weeks, so no proposal can claim a better baseline than the data shows.")
+      ];
+    },
+
+    decision: function (st, animate) {
+      var p = st.proposal, d = st.decision, seg = SEG[p.segment_id];
+      return [
+        h("div", { class: "slip" },
+          proposalHead(p, seg, d, animate, "Proposal, try " + p.attempt),
+          h("p", { class: "slip-msg" }, "Message customers would get: ", h("q", { lang: "hi-Latn" }, typo(p.message))),
+          h("blockquote", { class: "slip-why" }, h("b", null, "Agent’s reasoning: "), typo(p.rationale))),
+        reasonsList(d),
+        numbersGrid(d)
+      ];
+    },
+
+    approval: function (st) {
+      var d = st.decision, z = st.passport, o = st.offer, n = d.numbers;
+      var mins = Math.round((z.expires_at - z.issued_at) / 60);
+      var field = function (k, v) { return h("div", null, h("dt", null, k), h("dd", null, v)); };
+      return [
+        h("ol", { class: "steps-ol" },
+          h("li", null, "Checked the offer again against today’s rules and budget. Still inside every limit; the only open item was the owner’s yes."),
+          h("li", null, "Reserved " + inr(n.max_spend_paise) + " of this week’s " + inr(n.remaining_budget_paise) + " before anything went out."),
+          h("li", null, "Signed a one-time passport for exactly this offer:",
+            h("dl", { class: "passport" },
+              field("Offer", z.campaign_id),
+              field("Reward", inr(z.reward_paise) + " on bills of " + inr(z.min_bill_paise) + "+"),
+              field("Pays at most", inr(z.max_spend_paise)),
+              field("Customers", z.treated_count + " (list fingerprint " + z.treated_digest.slice(0, 8) + "…)"),
+              field("Rules version", z.policy_fingerprint),
+              field("Valid", mins + " minutes, once"))),
+          h("li", null, "Created the offer through the offer rails (a mock here): " + o.offer_id + ", " + o.customers + " customers, " +
+            inr(o.reward_paise) + " on " + inr(o.min_bill_paise) + "+, for " + o.valid_days + " days."))
+      ];
+    },
+
+    outcome: function (st) {
+      var o = st.outcome, r = st.result, solo = st.solo, t = st.truth;
+      var tr = o.treated_returned / o.treated_n, hr = o.holdout_n ? o.holdout_returned / o.holdout_n : 0;
+      var bar = function (cls, label, num, den, frac) {
+        return h("div", null,
+          h("p", { class: "mbar-label" }, h("b", null, label), ": " + num + " of " + den + " came back"),
+          h("div", { class: "mbar-track" }, h("div", { class: "mbar " + cls, style: "width:" + Math.max(0.5, frac * 70) + "%" }),
+            h("span", { class: "mbar-val" }, rate(frac))));
+      };
+      var soloWrong = (solo.verdict === "STOP" && t.true_lift_bps > 0) || (solo.verdict === "WORKED" && t.true_lift_bps <= 0);
+      var truthText = t.true_lift_bps > 0
+        ? "this offer really brings back " + pp(t.true_lift_bps) + " more customers."
+        : "this offer has no effect at all.";
+      var soloText = solo.verdict === "STOP" ? "stopped an offer that works" : "kept paying for an offer that does nothing";
+      return [
+        h("div", { class: "mini-bars" },
+          bar("treated", "Got the offer", o.treated_returned, o.treated_n, tr),
+          bar("held", "Held back", o.holdout_returned, o.holdout_n, hr)),
+        h("p", { class: "note" }, "With only " + o.holdout_n + " customers held back, the raw gap is mostly noise. Here is how each way of reading it decides."),
+        h("div", { class: "verdicts" },
+          h("div", { class: "verdict-box" },
+            h("h4", null, "The shop’s own numbers alone"), chip(solo.verdict),
+            h("p", null, VERDICT[solo.verdict] + ". " + share(solo.prob_profitable) + " chance it paid for itself.")),
+          h("div", { class: "verdict-box ours" },
+            h("h4", null, "Munim, with a return rate pooled across 20 simulated shops"), chip(r.verdict),
+            h("p", null, VERDICT[r.verdict] + ". " + share(r.prob_lift_positive) + " chance it brought customers back, " +
+              share(r.prob_profitable) + " that it paid for itself."))),
+        h("p", { class: "truth" }, h("b", null, "The simulation knows the answer: "), truthText,
+          soloWrong ? " Judged on the shop’s numbers alone, it would have " + soloText + "." : ""),
+        h("p", null, "Spent " + inr(o.spend_paise) + ". " + inr(st.released_paise) + " of the reservation went back into this week’s budget.")
+      ];
+    },
+
+    kill: function () {
+      return [h("p", { style: "max-width:44em" }, "The kill switch is on. From now on every new offer waits for the owner’s yes, even one that is inside every rule.")];
+    },
+
+    audit: function (st) {
+      var list = h("ol", { class: "chain", "aria-label": "Ledger entries" });
+      var status = h("p", { class: "verify-status" });
+      var btn = h("button", { type: "button", class: "btn btn-secondary" });
+      function draw() {
+        fill(list, st.kinds.map(function (k, i) {
+          var seq = i + 1, cls = "ok";
+          if (tampered && seq === st.tamper.edited_seq) cls = "edited";
+          else if (tampered && seq > st.tamper.broken_at) cls = "broken";
+          return h("li", { class: cls }, h("b", null, "#" + seq), k.replace(/_/g, " ").toLowerCase());
+        }));
+        if (tampered) {
+          status.className = "verify-status bad";
+          status.textContent = "Verification fails at entry " + st.tamper.broken_at + ": someone changed the " + st.tamper.edit.replace("->", "to") + ".";
+          btn.textContent = "Undo the edit";
+        } else {
+          status.className = "verify-status ok";
+          status.textContent = "All " + st.verify.checked + " entries check out. The chain is intact.";
+          btn.textContent = "Quietly edit entry " + st.tamper.edited_seq;
+        }
+      }
+      btn.addEventListener("click", function () { tampered = !tampered; draw(); });
+      draw();
+      return [
+        h("p", { style: "max-width:46em" }, "Each entry is sealed with the SHA-256 hash of the one before it. Latest seal: ",
+          h("code", null, S.ledger.head.slice(0, 16) + "…")),
+        list,
+        h("div", { class: "verify" }, btn, status)
+      ];
+    }
+  };
+
+  document.getElementById("prev").addEventListener("click", function () { go(current - 1); });
+  document.getElementById("next").addEventListener("click", function () { go(current + 1); });
+  document.getElementById("replay").addEventListener("keydown", function (e) {
+    if (e.target.closest("input, textarea, select")) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); go(current + 1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(current - 1); }
+  });
+  go(0);
+
+  /* --------------------------------------------------------------- sandbox */
+
+  var DEFAULTS = { budget: POLICY.weekly_budget_paise / 100, keep: POLICY.keep_margin_bps / 100, ask: POLICY.approval_threshold_paise / 100 };
+  var PRESETS = [
+    { label: "The agent’s greedy first try", seg: "lapsed_regulars", reward: 40, bill: 100, holdout: 0, count: "all" },
+    { label: "Cashback for people who come anyway", seg: "occasional_active", reward: 12, bill: 200, holdout: 20, count: 30 },
+    { label: "A small, measured offer", seg: "one_time_recent", reward: 10, bill: 200, holdout: 20, count: "all" }
+  ];
+  var sb = { seg: SEG_BY_KIND.lapsed_regulars.segment_id, reward: 40, bill: 100, holdout: 0, count: 48,
+             budget: DEFAULTS.budget, keep: DEFAULTS.keep, ask: DEFAULTS.ask, kill: false, attempt: 1, note: null };
+  var lastStamp = null;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var segBox = $("segs");
+  insight.segments.forEach(function (s) {
+    segBox.appendChild(h("label", null,
+      h("input", { type: "radio", name: "seg", value: s.segment_id, onchange: function () {
+        sb.seg = s.segment_id; sb.count = s.size; sb.attempt = 1; sb.note = null; sync(); } }),
+      h("span", null, s.name), h("span", { class: "size" }, s.size + " customers")));
+  });
+  PRESETS.forEach(function (pr) {
+    $("presets").appendChild(h("button", { type: "button", class: "preset", onclick: function () {
+      var s = SEG_BY_KIND[pr.seg];
+      Object.assign(sb, { seg: s.segment_id, reward: pr.reward, bill: pr.bill, holdout: pr.holdout,
+        count: pr.count === "all" ? s.size : Math.min(pr.count, s.size), budget: DEFAULTS.budget, keep: DEFAULTS.keep,
+        ask: DEFAULTS.ask, kill: false, attempt: 1, note: null });
+      sync();
+    } }, pr.label));
+  });
+
+  var sliders = {
+    reward: ["in-reward", "out-reward", function (v) { return "₹" + v; }],
+    bill: ["in-bill", "out-bill", function (v) { return "₹" + v.toLocaleString("en-IN"); }],
+    holdout: ["in-holdout", "out-holdout", function (v) { return v + "%"; }],
+    count: ["in-count", "out-count", null],
+    budget: ["in-budget", "out-budget", function (v) { return "₹" + v.toLocaleString("en-IN"); }],
+    keep: ["in-keep", "out-keep", function (v) { return v + "% of " + pct(POLICY.gross_margin_bps); }],
+    ask: ["in-ask", "out-ask", function (v) { return "₹" + v.toLocaleString("en-IN"); }]
+  };
+  Object.keys(sliders).forEach(function (key) {
+    $(sliders[key][0]).addEventListener("input", function (e) {
+      sb[key] = parseInt(e.target.value, 10);
+      if (key === "reward" || key === "bill" || key === "holdout" || key === "count") { sb.note = null; }
+      sync();
+    });
+  });
+  $("in-kill").addEventListener("click", function () { sb.kill = !sb.kill; sync(); });
+
+  function evaluateSandbox() {
+    var seg = SEG[sb.seg];
+    var policy = Object.assign({}, POLICY, { weekly_budget_paise: sb.budget * 100, keep_margin_bps: sb.keep * 100,
+      approval_threshold_paise: sb.ask * 100 });
+    delete policy.fingerprint;
+    var proposal = { campaign_id: "sandbox-a" + sb.attempt, reward_paise: sb.reward * 100, min_bill_paise: sb.bill * 100,
+      holdout_pct: sb.holdout, validity_days: seg.window_days, customers: seg.members.slice(0, sb.count) };
+    var ctx = { segment: seg, remaining_budget_paise: policy.weekly_budget_paise, kill_switch: sb.kill };
+    return { seg: seg, proposal: proposal, decision: R.evaluate(policy, proposal, ctx) };
+  }
+
+  function sync() {
+    var seg = SEG[sb.seg];
+    sb.count = Math.max(1, Math.min(sb.count, seg.size));
+    segBox.querySelectorAll("input").forEach(function (r) { r.checked = r.value === sb.seg; });
+    $("in-count").max = String(seg.size);
+    Object.keys(sliders).forEach(function (key) {
+      var s = sliders[key], input = $(s[0]);
+      input.value = String(sb[key]);
+      $(s[1]).textContent = key === "count" ? sb.count + " of " + seg.size : s[2](sb[key]);
+    });
+    $("in-kill").setAttribute("aria-pressed", sb.kill ? "true" : "false");
+    renderSandbox();
+  }
+
+  function renderSandbox() {
+    var res = evaluateSandbox(), d = res.decision, p = res.proposal, seg = res.seg;
+    var head = { reward_paise: p.reward_paise, min_bill_paise: p.min_bill_paise, holdout_pct: p.holdout_pct,
+      validity_days: p.validity_days, customer_count: p.customers.length };
+    var animate = lastStamp !== null && lastStamp !== d.decision;
+    lastStamp = d.decision;
+    var actions = null;
+    if (d.decision === "DENY") {
+      var codes = d.reasons.filter(function (r) { return r.effect === "DENY"; }).map(function (r) { return r.code; });
+      if (R.replan(head, d)) {
+        actions = h("div", { class: "sb-actions" },
+          h("button", { type: "button", class: "btn btn-primary", onclick: replanSandbox }, "Let the agent replan"));
+      } else if (codes.indexOf("invalid_proposal") < 0 && !sb.note) {
+        actions = h("p", { class: "agent-note" }, "The agent would give up here: no offer worth sending (at least \u20B910) fits these rules for this group.");
+      }
+    }
+    fill($("sb-slip"),
+      proposalHead(head, seg, d, animate, sb.attempt > 1 ? "The agent’s proposal, try " + sb.attempt : "Your proposal"),
+      h("div", { style: "margin-top:18px" }, reasonsList(d)),
+      h("div", { style: "margin-top:18px" }, numbersGrid(d)),
+      actions,
+      sb.note ? h("p", { class: "agent-note" }, sb.note) : null
+    );
+    $("sb-live").textContent = d.decision + ". " + plainLine(d);
+  }
+
+  function replanSandbox() {
+    var res = evaluateSandbox();
+    var prev = { reward_paise: res.proposal.reward_paise, min_bill_paise: res.proposal.min_bill_paise,
+      holdout_pct: res.proposal.holdout_pct, customer_count: res.proposal.customers.length };
+    var next = R.replan(prev, res.decision);
+    if (!next) {
+      sb.note = "The agent gives up: no offer worth sending (at least ₹10) fits these rules for this group.";
+      renderSandbox();
+      return;
+    }
+    Object.assign(sb, { reward: next.reward_paise / 100, bill: next.min_bill_paise / 100, holdout: next.holdout_pct,
+      count: next.customer_count, attempt: sb.attempt + 1 });
+    sb.note = null;
+    sync();
+    sb.note = "The agent took Munim’s numbers and tried again: " + inr(next.reward_paise) + " on bills of " +
+      inr(next.min_bill_paise) + "+, " + next.holdout_pct + "% held back, " + next.customer_count + " customers.";
+    renderSandbox();
+  }
+
+  document.querySelectorAll(".lang button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      lang = b.getAttribute("data-lang");
+      document.querySelectorAll(".lang button").forEach(function (x) {
+        x.setAttribute("aria-pressed", x.getAttribute("data-lang") === lang ? "true" : "false");
+      });
+      renderStage(false);
+      renderSandbox();
+    });
+  });
+
+  sync();
+
+  /* ----------------------------------------------------------------- proof */
+
+  (function renderProof() {
+    var net = E.expected_net_per_campaign_paise;
+    var rows = [
+      { name: "Perfect hindsight", sub: "not possible; for scale", v: net.oracle, cls: "ref" },
+      { name: "Munim, pooled return rate", v: net.pooled, cls: "ours" },
+      { name: "The shop’s own numbers only", v: net.shop_only, cls: "" },
+      { name: "Run every offer the agent wants", v: net.keep_everything, cls: "" }
+    ];
+    var lo = Math.min(0, Math.min.apply(null, rows.map(function (r) { return r.v; })));
+    var hi = Math.max(0, Math.max.apply(null, rows.map(function (r) { return r.v; })));
+    var padL = (hi - lo) * 0.2, padR = (hi - lo) * 0.17;
+    var min = lo - padL, max = hi + padR;
+    var x = function (v) { return 100 * (v - min) / (max - min); };
+    var zero = x(0);
+    fill($("netbars"), rows.map(function (r) {
+      var left = r.v >= 0 ? zero : x(r.v), width = Math.abs(x(r.v) - zero);
+      var label = inr2(r.v);
+      var valStyle = r.v >= 0 ? "left:calc(" + (zero + width) + "% + 8px)" : "right:calc(" + (100 - left) + "% + 8px)";
+      return h("div", { class: "hbar", tabindex: "0", title: r.name + ": " + label + " per campaign" },
+        h("div", { class: "hbar-name" }, h("b", null, r.name), r.sub ? h("br") : null, r.sub || null),
+        h("div", { class: "hbar-plot" },
+          h("div", { class: "hbar-zero", style: "left:" + zero + "%" }),
+          h("div", { class: "hbar-fill " + (r.v >= 0 ? "pos " : "neg ") + r.cls, style: "left:" + left + "%;width:" + width + "%" }),
+          h("span", { class: "hbar-val", style: valStyle }, label)));
+    }));
+
+    var a = E.shop_only, b = E.pooled;
+    var line = function (label, va, vb, lowerIsBetter) {
+      var betterB = lowerIsBetter ? vb < va : vb > va;
+      return h("tr", null, h("td", null, label),
+        h("td", { class: betterB ? "" : "better" }, rate(va)),
+        h("td", { class: betterB ? "better" : "" }, rate(vb)));
+    };
+    fill($("rates"),
+      h("thead", null, h("tr", null, h("th", null, "Out of 1,000 campaigns"), h("th", null, "Shop’s own numbers"), h("th", null, "Munim, pooled"))),
+      h("tbody", null,
+        line("Right keep-or-stop call", a.correct_rate, b.correct_rate, false),
+        line("Profitable offers wrongly stopped", a.profitable_offers_stopped_rate, b.profitable_offers_stopped_rate, true),
+        line("Losing offers wrongly kept", a.losing_offers_kept_rate, b.losing_offers_kept_rate, true)));
+    $("rates-note").textContent = "Pooling keeps slightly more losing offers (" + rate(b.losing_offers_kept_rate) + " against " +
+      rate(a.losing_offers_kept_rate) + ") because it waits for evidence before stopping. It wrongly stops far fewer good ones (" +
+      rate(b.profitable_offers_stopped_rate) + " against " + rate(a.profitable_offers_stopped_rate) + "), which is where the money is. Bold marks the better figure.";
+
+    var outs = steps.filter(function (s) { return s.kind === "outcome"; });
+    fill($("cases"),
+      h("thead", null, h("tr", null, h("th", null, "Offer"), h("th", null, "The truth in the simulation"),
+        h("th", null, "Shop’s own numbers say"), h("th", null, "Munim says"))),
+      h("tbody", null, outs.map(function (o) {
+        var truth = o.truth.true_lift_bps > 0 ? "Works: +" + pp(o.truth.true_lift_bps) + " more customers return" : "Does nothing: +0 pp";
+        return h("tr", null, h("td", null, o.name),
+          h("td", null, truth),
+          h("td", null, chip(o.solo.verdict), h("small", null, share(o.solo.prob_profitable) + " chance it paid")),
+          h("td", null, chip(o.result.verdict), h("small", null, share(o.result.prob_profitable) + " chance it paid")));
+      })));
+    var cfg = E.config;
+    $("eval-setup").textContent = "Simulation set-up: " + E.trials.toLocaleString("en-IN") + " campaigns of " + cfg.campaign_size +
+      ", " + inr(cfg.reward_paise) + " cashback on a typical " + inr(cfg.basket_paise) + " bill at " + pct(cfg.gross_margin_bps) +
+      " margin. True return rates vary by shop around " + pct(cfg.pooled_prior.baseline_bps) + "; 40% of offers truly do nothing. " +
+      "Rule: stop when the chance of profit is below 50%. Reproduce with python3 scripts/eval_measurement.py.";
+  })();
+})();
+</script>
+</body>
+</html>

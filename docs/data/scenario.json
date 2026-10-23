@@ -1,0 +1,1558 @@
+{
+ "generated_by": "scripts/demo.py",
+ "engine_version": "0.1.0",
+ "seed": 2026,
+ "synthetic": true,
+ "ground_truth": {
+  "winback_true_lift_bps": 2000,
+  "nudge_true_lift_bps": 0
+ },
+ "priors": {
+  "lapsed_regulars": {
+   "baseline_bps": 2242,
+   "strength": 60
+  },
+  "one_time_recent": {
+   "baseline_bps": 1094,
+   "strength": 60
+  },
+  "occasional_active": {
+   "baseline_bps": 5072,
+   "strength": 60
+  }
+ },
+ "policy": {
+  "merchant_id": "sharma-general-store",
+  "weekly_budget_paise": 50000,
+  "gross_margin_bps": 1200,
+  "keep_margin_bps": 600,
+  "approval_threshold_paise": 30000,
+  "min_holdout_pct": 20,
+  "max_holdout_pct": 50,
+  "max_offers_per_customer_30d": 2,
+  "max_plausible_lift_bps": 2500,
+  "max_validity_days": 14,
+  "min_eligible_customers": 10,
+  "version": 1,
+  "fingerprint": "b5d4fc22b09faf14"
+ },
+ "steps": [
+  {
+   "kind": "policy",
+   "title": "The shop owner sets the rules, once, by voice",
+   "actor": "merchant",
+   "day": 0,
+   "date": "Fri 23 Oct",
+   "ledger_seq": 2,
+   "ledger_head": "0509a3dd86b3b8c073aedf8b7542ba31e25100fa7d38a4c7697d98e85f68ed6a",
+   "voice": "Munim, har hafte ₹500 tak growth pe laga sakte ho. Har bill pe kam se kam 6% munafa bachna chahiye. ₹300 se upar ka kharch ho toh pehle mujhse poochna.",
+   "policy": {
+    "merchant_id": "sharma-general-store",
+    "weekly_budget_paise": 50000,
+    "gross_margin_bps": 1200,
+    "keep_margin_bps": 600,
+    "approval_threshold_paise": 30000,
+    "min_holdout_pct": 20,
+    "max_holdout_pct": 50,
+    "max_offers_per_customer_30d": 2,
+    "max_plausible_lift_bps": 2500,
+    "max_validity_days": 14,
+    "min_eligible_customers": 10,
+    "version": 1,
+    "fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Theek hai. Har hafte ₹500 tak growth par kharch karunga, har bill par kam se kam 6% munafa bachaunga, aur ₹300 se upar ke offer par pehle aapse poochunga.",
+    "en": "Got it. Up to ₹500 a week on growth, at least 6% margin kept on every bill, and I'll ask before any offer that could cost more than ₹300."
+   }
+  },
+  {
+   "kind": "insight",
+   "title": "Munim reads 6 months of Paytm payments",
+   "actor": "munim",
+   "day": 0,
+   "date": "Fri 23 Oct",
+   "ledger_seq": 2,
+   "ledger_head": "0509a3dd86b3b8c073aedf8b7542ba31e25100fa7d38a4c7697d98e85f68ed6a",
+   "segments": [
+    {
+     "segment_id": "lapsed_regulars@day180",
+     "kind": "lapsed_regulars",
+     "name": "Regulars who stopped coming",
+     "description": "Came 8+ times in the 3 months before, not seen for 3+ weeks",
+     "size": 48,
+     "baseline_return_bps": 2189,
+     "avg_basket_paise": 34051,
+     "window_days": 14,
+     "backtest_members": 169,
+     "backtest_returned": 37,
+     "members": [
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": true
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": true
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": true
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      }
+     ]
+    },
+    {
+     "segment_id": "one_time_recent@day180",
+     "kind": "one_time_recent",
+     "name": "First-timers who never came back",
+     "description": "Exactly one visit, 1 to 6 weeks ago",
+     "size": 16,
+     "baseline_return_bps": 952,
+     "avg_basket_paise": 22450,
+     "window_days": 14,
+     "backtest_members": 189,
+     "backtest_returned": 18,
+     "members": [
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      }
+     ]
+    },
+    {
+     "segment_id": "occasional_active@day180",
+     "kind": "occasional_active",
+     "name": "Occasional shoppers",
+     "description": "2 to 6 visits in 60 days, seen in the last 2 weeks",
+     "size": 129,
+     "baseline_return_bps": 5132,
+     "avg_basket_paise": 27732,
+     "window_days": 14,
+     "backtest_members": 1060,
+     "backtest_returned": 544,
+     "members": [
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": true
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      },
+      {
+       "consented": false,
+       "capped": false
+      },
+      {
+       "consented": true,
+       "capped": false
+      }
+     ]
+    }
+   ],
+   "highlight": {
+    "segment_id": "lapsed_regulars@day180",
+    "monthly_spend_before_paise": 12800000
+   },
+   "merchant": {
+    "name": "Sharma General Store",
+    "city": "Ghaziabad",
+    "txns": 13772,
+    "customers": 650,
+    "avg_bill_paise": 32606
+   },
+   "soundbox": {
+    "hi": "48 purane regular grahak 3 hafte se nahi aaye. Pehle ye milkar mahine mein lagbhag ₹1,28,000 ka saaman lete the.",
+    "en": "48 regulars haven't been in for 3+ weeks. Together they used to spend about ₹1,28,000 a month here."
+   }
+  },
+  {
+   "kind": "decision",
+   "title": "The growth agent asks for too much",
+   "actor": "agent",
+   "day": 0,
+   "date": "Fri 23 Oct",
+   "ledger_seq": 4,
+   "ledger_head": "d89aa8e38fa262b1a223ee28aadbd144606cb9542629b1ac525abc3d17d48642",
+   "proposal": {
+    "campaign_id": "winback-a1",
+    "merchant_id": "sharma-general-store",
+    "segment_id": "lapsed_regulars@day180",
+    "name": "Win back lapsed regulars",
+    "reward_paise": 4000,
+    "min_bill_paise": 10000,
+    "holdout_pct": 0,
+    "validity_days": 14,
+    "message": "Sharma General Store mein aapki kami khal rahi hai! Agli khareed par ₹40 cashback.",
+    "rationale": "Bring back as many lapsed regulars as possible: big reward, low minimum bill, everyone, no comparison group.",
+    "attempt": 1,
+    "proposed_by": "reference-growth-agent",
+    "customer_count": 48
+   },
+   "decision": {
+    "campaign_id": "winback-a1",
+    "decision": "DENY",
+    "reasons": [
+     {
+      "code": "margin_floor",
+      "effect": "DENY",
+      "en": "₹40 cashback on a ₹100 bill leaves less than the 6% margin you keep on every bill. Most it can be: ₹6. Suggested: ₹15 on bills of ₹250+.",
+      "hi": "₹100 ke bill par ₹40 cashback se har bill par 6% munafa nahi bachega. Zyada se zyada ₹6. Sujhaav: ₹250+ ke bill par ₹15."
+     },
+     {
+      "code": "no_measurement",
+      "effect": "DENY",
+      "en": "Keeps 0% of customers as a comparison group; at least 20% is required, or nobody can tell whether the offer worked.",
+      "hi": "Kam se kam 20% grahak tulna ke liye rakhne zaroori hain, warna pata hi nahi chalega offer kaam kiya ya nahi."
+     },
+     {
+      "code": "excluded_no_consent",
+      "effect": "NOTE",
+      "en": "4 customer(s) have not opted in to offers and were left out.",
+      "hi": "4 grahakon ne offers ke liye haan nahi kaha, unhe chhod diya."
+     },
+     {
+      "code": "excluded_frequency_cap",
+      "effect": "NOTE",
+      "en": "3 customer(s) already got 2 offers in the last 30 days and were left out.",
+      "hi": "3 grahakon ko 30 din mein pehle hi 2 offer mil chuke, unhe chhod diya."
+     },
+     {
+      "code": "over_budget",
+      "effect": "DENY",
+      "en": "Worst case this spends ₹1,280 (32 customers x ₹40); only ₹500 is left in this week's budget.",
+      "hi": "Is offer mein ₹1,280 tak kharch ho sakta hai, par is hafte sirf ₹500 bacha hai."
+     },
+     {
+      "code": "cannot_pay_back",
+      "effect": "DENY",
+      "en": "Even if every one of these customers came back, ₹40 cashback would cost more than the extra margin it earns (₹41 on a typical ₹341 bill, and 21.9% come back anyway). Largest reward that can pay back: ₹21.",
+      "hi": "Saare grahak laut aayein tab bhi ₹40 cashback ka kharch extra munafe se zyada hoga (₹341 ke aam bill par ₹41 munafa, aur 21.9% waise bhi aate hain). Zyada se zyada ₹21 cashback."
+     },
+     {
+      "code": "approval_required",
+      "effect": "GATE",
+      "en": "Worst-case spend ₹1,280 is above your ₹300 auto-approve limit, so it waits for your OK.",
+      "hi": "Is offer mein ₹1,280 tak kharch ho sakta hai, aapki ₹300 ki seema se zyada. Aapki manzoori chahiye."
+     }
+    ],
+    "constraints": {
+     "max_reward_paise": 600,
+     "suggested": {
+      "min_bill_paise": 25000,
+      "reward_paise": 1500
+     },
+     "min_bill_for_requested_reward_paise": 66667,
+     "min_holdout_pct": 20,
+     "max_treated_customers": 12,
+     "max_reward_for_all_paise": 1562,
+     "max_reward_for_payback_paise": 2178
+    },
+    "numbers": {
+     "reward_ceiling_paise": 600,
+     "customers_proposed": 48,
+     "excluded_no_consent": 4,
+     "excluded_frequency_cap": 3,
+     "eligible": 41,
+     "treated": 32,
+     "holdout": 9,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 128000,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 2189,
+     "basket_used_paise": 34051,
+     "break_even_lift_bps": 101673
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Agent ka offer roka, 4 kaaran. ₹100 ke bill par ₹40 cashback se har bill par 6% munafa nahi bachega. Zyada se zyada ₹6. Sujhaav: ₹250+ ke bill par ₹15.",
+    "en": "Agent's offer refused, 4 reason(s). ₹40 cashback on a ₹100 bill leaves less than the 6% margin you keep on every bill. Most it can be: ₹6. Suggested: ₹15 on bills of ₹250+."
+   }
+  },
+  {
+   "kind": "decision",
+   "title": "The agent replans inside Munim's limits",
+   "actor": "agent",
+   "day": 0,
+   "date": "Fri 23 Oct",
+   "ledger_seq": 6,
+   "ledger_head": "a993d87d0e21bd4000391e42d34e5067362d540dbbc33a5a78c9c30b4ce4d78e",
+   "proposal": {
+    "campaign_id": "winback-a2",
+    "merchant_id": "sharma-general-store",
+    "segment_id": "lapsed_regulars@day180",
+    "name": "Win back lapsed regulars",
+    "reward_paise": 1500,
+    "min_bill_paise": 25000,
+    "holdout_pct": 20,
+    "validity_days": 14,
+    "message": "Sharma General Store mein aapki kami khal rahi hai! ₹250+ ki khareed par ₹15 cashback, 14 din tak.",
+    "rationale": "Replanned inside Munim's limits after: cannot_pay_back, margin_floor, no_measurement, over_budget.",
+    "attempt": 2,
+    "proposed_by": "reference-growth-agent",
+    "customer_count": 48
+   },
+   "decision": {
+    "campaign_id": "winback-a2",
+    "decision": "GATE",
+    "reasons": [
+     {
+      "code": "excluded_no_consent",
+      "effect": "NOTE",
+      "en": "4 customer(s) have not opted in to offers and were left out.",
+      "hi": "4 grahakon ne offers ke liye haan nahi kaha, unhe chhod diya."
+     },
+     {
+      "code": "excluded_frequency_cap",
+      "effect": "NOTE",
+      "en": "3 customer(s) already got 2 offers in the last 30 days and were left out.",
+      "hi": "3 grahakon ko 30 din mein pehle hi 2 offer mil chuke, unhe chhod diya."
+     },
+     {
+      "code": "approval_required",
+      "effect": "GATE",
+      "en": "Worst-case spend ₹480 is above your ₹300 auto-approve limit, so it waits for your OK.",
+      "hi": "Is offer mein ₹480 tak kharch ho sakta hai, aapki ₹300 ki seema se zyada. Aapki manzoori chahiye."
+     }
+    ],
+    "constraints": {},
+    "numbers": {
+     "reward_ceiling_paise": 1500,
+     "customers_proposed": 48,
+     "excluded_no_consent": 4,
+     "excluded_frequency_cap": 3,
+     "eligible": 41,
+     "treated": 32,
+     "holdout": 9,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 48000,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 2189,
+     "basket_used_paise": 34051,
+     "break_even_lift_bps": 1270
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Manzoori chahiye: 32 grahakon ko ₹250+ par ₹15 cashback, zyada se zyada ₹480. 'Haan' bolein ya button dabayein.",
+    "en": "Needs your OK: ₹15 cashback on ₹250+ for 32 customers, up to ₹480. Say 'haan' or press the button."
+   }
+  },
+  {
+   "kind": "approval",
+   "title": "Owner says 'haan'. Munim re-checks, reserves budget, issues a passport",
+   "actor": "merchant",
+   "day": 0,
+   "date": "Fri 23 Oct",
+   "ledger_seq": 9,
+   "ledger_head": "902e20fba45cee08b0d67eaaf60fb6bfbe3959fb6db7f9997a9e22b9213d7bd6",
+   "decision": {
+    "campaign_id": "winback-a2",
+    "decision": "GATE",
+    "reasons": [
+     {
+      "code": "excluded_no_consent",
+      "effect": "NOTE",
+      "en": "4 customer(s) have not opted in to offers and were left out.",
+      "hi": "4 grahakon ne offers ke liye haan nahi kaha, unhe chhod diya."
+     },
+     {
+      "code": "excluded_frequency_cap",
+      "effect": "NOTE",
+      "en": "3 customer(s) already got 2 offers in the last 30 days and were left out.",
+      "hi": "3 grahakon ko 30 din mein pehle hi 2 offer mil chuke, unhe chhod diya."
+     },
+     {
+      "code": "approval_required",
+      "effect": "GATE",
+      "en": "Worst-case spend ₹480 is above your ₹300 auto-approve limit, so it waits for your OK.",
+      "hi": "Is offer mein ₹480 tak kharch ho sakta hai, aapki ₹300 ki seema se zyada. Aapki manzoori chahiye."
+     }
+    ],
+    "constraints": {},
+    "numbers": {
+     "reward_ceiling_paise": 1500,
+     "customers_proposed": 48,
+     "excluded_no_consent": 4,
+     "excluded_frequency_cap": 3,
+     "eligible": 41,
+     "treated": 32,
+     "holdout": 9,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 48000,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 2189,
+     "basket_used_paise": 34051,
+     "break_even_lift_bps": 1270
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "status": "LIVE",
+   "passport": {
+    "campaign_id": "winback-a2",
+    "merchant_id": "sharma-general-store",
+    "reward_paise": 1500,
+    "min_bill_paise": 25000,
+    "max_spend_paise": 48000,
+    "treated_count": 32,
+    "treated_digest": "ed983603886bcf6c09b31252d6c244b6b8bda436b4d02c5db4c18cbb67458dd4",
+    "policy_fingerprint": "b5d4fc22b09faf14",
+    "issued_at": 1792726620.0,
+    "expires_at": 1792730220.0,
+    "nonce": "eedbe84905817ddfc9089244",
+    "signature": "5f6175d6a3114b4e..."
+   },
+   "offer": {
+    "offer_id": "mock-offer-70b79ded25",
+    "status": "CREATED",
+    "customers": 32,
+    "reward_paise": 1500,
+    "min_bill_paise": 25000,
+    "valid_days": 14
+   },
+   "soundbox": {
+    "hi": "Offer chalu. 32 grahakon ko WhatsApp par bheja gaya. 9 grahak tulna ke liye bina offer ke.",
+    "en": "Offer live. Sent to 32 customers. 9 kept without the offer for comparison."
+   }
+  },
+  {
+   "kind": "decision",
+   "title": "A second idea: cashback for shoppers who come anyway",
+   "actor": "agent",
+   "day": 7,
+   "date": "Fri 30 Oct",
+   "ledger_seq": 11,
+   "ledger_head": "030a807bf036cdc5ea2e2a02452d683d65face881393c2b06791cbb6669d4a06",
+   "proposal": {
+    "campaign_id": "nudge-a1",
+    "merchant_id": "sharma-general-store",
+    "segment_id": "occasional_active@day180",
+    "name": "Nudge occasional shoppers",
+    "reward_paise": 1200,
+    "min_bill_paise": 20000,
+    "holdout_pct": 20,
+    "validity_days": 14,
+    "message": "Sharma General Store: ₹200+ ki khareed par ₹12 cashback, 14 din tak.",
+    "rationale": "Occasional shoppers could visit more often with a small reward.",
+    "attempt": 1,
+    "proposed_by": "reference-growth-agent",
+    "customer_count": 30
+   },
+   "decision": {
+    "campaign_id": "nudge-a1",
+    "decision": "DENY",
+    "reasons": [
+     {
+      "code": "excluded_no_consent",
+      "effect": "NOTE",
+      "en": "2 customer(s) have not opted in to offers and were left out.",
+      "hi": "2 grahakon ne offers ke liye haan nahi kaha, unhe chhod diya."
+     },
+     {
+      "code": "unrealistic_payback",
+      "effect": "DENY",
+      "en": "51.3% of these customers come back within 14 days anyway, so most cashback would go to people who'd buy regardless. Breaking even needs 29.0 pp more of them to return; plan for at most 25.0 pp. Largest reward that can pay back: ₹10.",
+      "hi": "Inme se 51.3% grahak 14 din mein waise bhi aate hain; cashback zyadatar unhe milega jo bina offer ke bhi kharidte. Fayde ke liye 29.0 pp aur grahak lautne chahiye, ummeed 25.0 pp tak hi. Zyada se zyada ₹10 cashback."
+     }
+    ],
+    "constraints": {
+     "max_reward_for_payback_paise": 1090
+    },
+    "numbers": {
+     "reward_ceiling_paise": 1200,
+     "customers_proposed": 30,
+     "excluded_no_consent": 2,
+     "excluded_frequency_cap": 0,
+     "eligible": 28,
+     "treated": 22,
+     "holdout": 6,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 26400,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 5132,
+     "basket_used_paise": 27732,
+     "break_even_lift_bps": 2895
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Agent ka offer roka, 1 kaaran. Inme se 51.3% grahak 14 din mein waise bhi aate hain; cashback zyadatar unhe milega jo bina offer ke bhi kharidte. Fayde ke liye 29.0 pp aur grahak lautne chahiye, ummeed 25.0 pp tak hi. Zyada se zyada ₹10 cashback.",
+    "en": "Agent's offer refused, 1 reason(s). 51.3% of these customers come back within 14 days anyway, so most cashback would go to people who'd buy regardless. Breaking even needs 29.0 pp more of them to return; plan for at most 25.0 pp. Largest reward that can pay back: ₹10."
+   }
+  },
+  {
+   "kind": "decision",
+   "title": "Smaller reward: inside the rules, so Munim lets it run, and measures it",
+   "actor": "agent",
+   "day": 7,
+   "date": "Fri 30 Oct",
+   "ledger_seq": 15,
+   "ledger_head": "1aa7dfc1393d9194c9ab655d82983bfc3eecceaf16009b5470a02b2205632f3d",
+   "proposal": {
+    "campaign_id": "nudge-a2",
+    "merchant_id": "sharma-general-store",
+    "segment_id": "occasional_active@day180",
+    "name": "Nudge occasional shoppers",
+    "reward_paise": 1000,
+    "min_bill_paise": 20000,
+    "holdout_pct": 20,
+    "validity_days": 14,
+    "message": "Sharma General Store: ₹200+ ki khareed par ₹10 cashback, 14 din tak.",
+    "rationale": "Replanned inside Munim's limits after: unrealistic_payback.",
+    "attempt": 2,
+    "proposed_by": "reference-growth-agent",
+    "customer_count": 30
+   },
+   "decision": {
+    "campaign_id": "nudge-a2",
+    "decision": "ALLOW",
+    "reasons": [
+     {
+      "code": "excluded_no_consent",
+      "effect": "NOTE",
+      "en": "2 customer(s) have not opted in to offers and were left out.",
+      "hi": "2 grahakon ne offers ke liye haan nahi kaha, unhe chhod diya."
+     },
+     {
+      "code": "within_rules",
+      "effect": "NOTE",
+      "en": "Within your rules: worst case ₹220 of the ₹500 left this week, and every bill keeps at least 6% margin.",
+      "hi": "Aapke niyamon ke andar: zyada se zyada ₹220 kharch, har bill par kam se kam 6% munafa."
+     }
+    ],
+    "constraints": {},
+    "numbers": {
+     "reward_ceiling_paise": 1200,
+     "customers_proposed": 30,
+     "excluded_no_consent": 2,
+     "excluded_frequency_cap": 0,
+     "eligible": 28,
+     "treated": 22,
+     "holdout": 6,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 22000,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 5132,
+     "basket_used_paise": 27732,
+     "break_even_lift_bps": 2205
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Naya offer chalu: 22 grahakon ko ₹200+ ke bill par ₹10 cashback. Zyada se zyada kharch ₹220. 6 grahak tulna ke liye alag rakhe.",
+    "en": "New offer live: ₹10 cashback on bills of ₹200+ for 22 customers. Most it can cost: ₹220. 6 customers held back for comparison."
+   }
+  },
+  {
+   "kind": "outcome",
+   "title": "Day 14: did the win-back offer make money?",
+   "actor": "munim",
+   "day": 14,
+   "date": "Fri 06 Nov",
+   "ledger_seq": 16,
+   "ledger_head": "a8aef7de07f7df24cf2e83e1aea0caa3cc9d5d9b55324eadc5ba441dbbf29b1c",
+   "campaign_id": "winback-a2",
+   "name": "Win back lapsed regulars",
+   "outcome": {
+    "treated_n": 32,
+    "treated_returned": 13,
+    "holdout_n": 9,
+    "holdout_returned": 5,
+    "spend_paise": 19500,
+    "avg_basket_paise": 39531
+   },
+   "result": {
+    "treated_n": 32,
+    "treated_returned": 13,
+    "holdout_n": 9,
+    "holdout_returned": 5,
+    "treated_rate_bps": 4062,
+    "holdout_rate_bps": 5556,
+    "lift_mean_bps": 1447,
+    "lift_p05_bps": -158,
+    "lift_p95_bps": 3072,
+    "prob_lift_positive": 0.929,
+    "prob_profitable": 0.563,
+    "spend_paise": 19500,
+    "incremental_visits": 4.6,
+    "incremental_revenue_paise": 183094,
+    "incremental_margin_paise": 21971,
+    "net_paise": 2471,
+    "roi": 1.13,
+    "verdict": "UNCERTAIN",
+    "prior": {
+     "baseline_bps": 2242,
+     "strength": 60
+    }
+   },
+   "solo": {
+    "treated_n": 32,
+    "treated_returned": 13,
+    "holdout_n": 9,
+    "holdout_returned": 5,
+    "treated_rate_bps": 4062,
+    "holdout_rate_bps": 5556,
+    "lift_mean_bps": -1345,
+    "lift_p05_bps": -4039,
+    "lift_p95_bps": 1437,
+    "prob_lift_positive": 0.213,
+    "prob_profitable": 0.06,
+    "spend_paise": 19500,
+    "incremental_visits": -4.3,
+    "incremental_revenue_paise": -170172,
+    "incremental_margin_paise": -20421,
+    "net_paise": -39921,
+    "roi": -1.05,
+    "verdict": "STOP",
+    "prior": null
+   },
+   "truth": {
+    "true_baseline_bps": 1844,
+    "true_lift_bps": 2000
+   },
+   "status": "COMPLETED",
+   "released_paise": 28500,
+   "soundbox": {
+    "hi": "'Win back lapsed regulars' shayad kaam kar raha hai: 93% sambhavna ki grahak offer ki wajah se laute, 56% ki kharch nikal aaya. Abhi pakka nahi, isliye Munim ise chalne dega aur dekhta rahega.",
+    "en": "'Win back lapsed regulars' is probably working: 93% chance it brought customers back, 56% that it has already paid for itself. Not proven yet, so Munim keeps it running and keeps measuring."
+   }
+  },
+  {
+   "kind": "outcome",
+   "title": "Day 21: did the nudge make money?",
+   "actor": "munim",
+   "day": 21,
+   "date": "Fri 13 Nov",
+   "ledger_seq": 17,
+   "ledger_head": "8449328c466129742d686a4e488efe6a63caa95913be064250ce9b75fc885849",
+   "campaign_id": "nudge-a2",
+   "name": "Nudge occasional shoppers",
+   "outcome": {
+    "treated_n": 22,
+    "treated_returned": 11,
+    "holdout_n": 6,
+    "holdout_returned": 0,
+    "spend_paise": 11000,
+    "avg_basket_paise": 23418
+   },
+   "result": {
+    "treated_n": 22,
+    "treated_returned": 11,
+    "holdout_n": 6,
+    "holdout_returned": 0,
+    "treated_rate_bps": 5000,
+    "holdout_rate_bps": 0,
+    "lift_mean_bps": 388,
+    "lift_p05_bps": -1565,
+    "lift_p95_bps": 2311,
+    "prob_lift_positive": 0.627,
+    "prob_profitable": 0.118,
+    "spend_paise": 11000,
+    "incremental_visits": 0.9,
+    "incremental_revenue_paise": 19981,
+    "incremental_margin_paise": 2398,
+    "net_paise": -8602,
+    "roi": 0.22,
+    "verdict": "STOP",
+    "prior": {
+     "baseline_bps": 5072,
+     "strength": 60
+    }
+   },
+   "solo": {
+    "treated_n": 22,
+    "treated_returned": 11,
+    "holdout_n": 6,
+    "holdout_returned": 0,
+    "treated_rate_bps": 5000,
+    "holdout_rate_bps": 0,
+    "lift_mean_bps": 3745,
+    "lift_p05_bps": 1043,
+    "lift_p95_bps": 5941,
+    "prob_lift_positive": 0.984,
+    "prob_profitable": 0.899,
+    "spend_paise": 11000,
+    "incremental_visits": 8.2,
+    "incremental_revenue_paise": 192929,
+    "incremental_margin_paise": 23151,
+    "net_paise": 12151,
+    "roi": 2.1,
+    "verdict": "WORKED",
+    "prior": null
+   },
+   "truth": {
+    "true_baseline_bps": 5103,
+    "true_lift_bps": 0
+   },
+   "status": "STOPPED",
+   "released_paise": 11000,
+   "soundbox": {
+    "hi": "'Nudge occasional shoppers' kaam nahi kiya. ₹110 kharch hue par pakka fayda nahi dikha (12% sambhavna). Munim ne ise band kar diya; ₹110 budget wapas.",
+    "en": "'Nudge occasional shoppers' did not work. ₹110 spent with no clear gain (12% chance it made money). Munim stopped it; ₹110 back in the budget."
+   }
+  },
+  {
+   "kind": "kill",
+   "title": "Owner: 'Munim, sab band karo'",
+   "actor": "merchant",
+   "day": 21,
+   "date": "Fri 13 Nov",
+   "ledger_seq": 18,
+   "ledger_head": "3fd0bf30720214bc18f264fc7261aadf4a4feac82c2e607454197b7dd562c34f",
+   "soundbox": {
+    "hi": "Theek hai. Ab koi bhi offer aapki manzoori ke bina nahi chalega.",
+    "en": "Done. No offer runs without your approval now."
+   }
+  },
+  {
+   "kind": "decision",
+   "title": "The agent's next idea would be allowed, but spending is paused",
+   "actor": "agent",
+   "day": 21,
+   "date": "Fri 13 Nov",
+   "ledger_seq": 20,
+   "ledger_head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+   "proposal": {
+    "campaign_id": "firsttime-a1",
+    "merchant_id": "sharma-general-store",
+    "segment_id": "one_time_recent@day180",
+    "name": "Bring first-timers back",
+    "reward_paise": 1000,
+    "min_bill_paise": 20000,
+    "holdout_pct": 20,
+    "validity_days": 14,
+    "message": "Sharma General Store mein dobara aaiye! ₹200+ ki khareed par ₹10 cashback.",
+    "rationale": "First-time customers rarely return on their own; a small reward may start a habit.",
+    "attempt": 1,
+    "proposed_by": "reference-growth-agent",
+    "customer_count": 16
+   },
+   "decision": {
+    "campaign_id": "firsttime-a1",
+    "decision": "GATE",
+    "reasons": [
+     {
+      "code": "kill_switch",
+      "effect": "GATE",
+      "en": "Autonomous spending is paused. Every campaign needs your approval.",
+      "hi": "Apne aap kharch band hai. Har offer ke liye aapki manzoori chahiye."
+     }
+    ],
+    "constraints": {},
+    "numbers": {
+     "reward_ceiling_paise": 1200,
+     "customers_proposed": 16,
+     "excluded_no_consent": 0,
+     "excluded_frequency_cap": 0,
+     "eligible": 16,
+     "treated": 12,
+     "holdout": 4,
+     "holdout_pct_used": 20,
+     "max_spend_paise": 12000,
+     "remaining_budget_paise": 50000,
+     "baseline_return_bps": 952,
+     "basket_used_paise": 22450,
+     "break_even_lift_bps": 562
+    },
+    "policy_fingerprint": "b5d4fc22b09faf14"
+   },
+   "soundbox": {
+    "hi": "Apne aap kharch band hai. Agent ka naya offer (₹10 cashback, 12 grahak, zyada se zyada ₹120) aapki manzoori ka intezaar kar raha hai.",
+    "en": "Autonomous spending is paused. The agent's new offer (₹10 cashback, 12 customers, up to ₹120) is waiting for you."
+   }
+  },
+  {
+   "kind": "audit",
+   "title": "Anyone can check the record. Quiet edits break the chain.",
+   "actor": "auditor",
+   "day": 21,
+   "date": "Fri 13 Nov",
+   "ledger_seq": 20,
+   "ledger_head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+   "verify": {
+    "intact": true,
+    "checked": 20,
+    "broken_at": null
+   },
+   "tamper": {
+    "edited_seq": 17,
+    "edit": "nudge verdict STOP -> WORKED",
+    "intact": false,
+    "checked": 17,
+    "broken_at": 17
+   },
+   "kinds": [
+    "POLICY_SET",
+    "INSIGHTS",
+    "PROPOSAL",
+    "DECISION",
+    "PROPOSAL",
+    "DECISION",
+    "APPROVAL",
+    "AUTHORIZED",
+    "EXECUTED",
+    "PROPOSAL",
+    "DECISION",
+    "PROPOSAL",
+    "DECISION",
+    "AUTHORIZED",
+    "EXECUTED",
+    "OUTCOME",
+    "OUTCOME",
+    "KILL_SWITCH",
+    "PROPOSAL",
+    "DECISION"
+   ]
+  }
+ ],
+ "ledger": {
+  "entries": 20,
+  "head": "9b37be696b3e93a8845aa1aac4724d3d1d006f253a496726847e314a3347e643",
+  "verify": {
+   "intact": true,
+   "checked": 20,
+   "broken_at": null
+  }
+ }
+}
